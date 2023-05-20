@@ -9,6 +9,6 @@
 		<groupId>cz.doleckovi.piskvorky</groupId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>piskvorky-api</artifactId>
+	<artifactId>piskvorky-ui</artifactId>
 
 </project>

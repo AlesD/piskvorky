@@ -6,7 +6,7 @@
 
 	<groupId>cz.doleckovi.piskvorky</groupId>
 	<artifactId>piskvorky</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>piskvorky</name>
@@ -22,6 +22,7 @@
 
 	<modules>
 		<module>piskvorky-api</module>
+		<module>piskvorky-ui</module>
 	</modules>
 
 	<scm>

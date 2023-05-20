@@ -1,0 +1,24 @@
+table.board {
+    table-layout: fixed;
+}
+
+td.field {
+    background-position: center center;
+    border: lightgray solid 1px;
+    line-height: 0;
+    width: 36px;
+    height: 36px;
+    background-size: 36px;
+    text-align: center;
+}
+
+td.field img {
+    width: 32px;
+    height: 32px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
