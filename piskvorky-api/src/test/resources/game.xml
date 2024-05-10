@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<game xmlns="http://www.doleckovi.cz/piskvorky/api/types">
+	<board width="15" height="15"/>
+	<players>
+		<white name="John Smith"/>
+		<black name="John Doe"/>
+	</players>
+	<moves finished="true">
+		<move column="7" row="7" player="WHITE"/>
+		<move column="8" row="6" player="BLACK"/>
+	</moves>
+</game>

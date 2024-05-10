@@ -1,36 +1,31 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import cz.doleckovi.piskvorky.api.board.Player;
-import cz.doleckovi.piskvorky.api.board.Stone;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.*;
+
+import static cz.doleckovi.piskvorky.api.board.Stone.WHITE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PositionImplTest {
 
 	@Test
 	void fields() {
-		var board = new BoardImpl(5);
-		var position = board.initialPosition();
-		assertThat(position.fields())
-				.allMatch(field -> field.getStone() == Stone.EMPTY);
-		var index = board.toIndex(2, 2);
-		position = position.setStone(index, Player.WHITE);
-		assertThat(position.fields().get(index))
-				.matches(field -> field.getStone() == Stone.WHITE);
+		var board = new Board(5);
+		var position = board.initialPosition().withStone(2, 2, WHITE);
+		assertThat(position.stone(2, 2)).isSameAs(WHITE);
 	}
 
 	@Test
 	void terminate() {
-		var board = new BoardImpl(7);
-		var position = board.initialPosition();
-		// two before
-		position = position.setStone(board.toIndex(2, 3), Player.WHITE);
-		position = position.setStone(board.toIndex(1, 3), Player.WHITE);
-		// two after
-		position = position.setStone(board.toIndex(4, 3), Player.WHITE);
-		position = position.setStone(board.toIndex(5, 3), Player.WHITE);
-		// this makes 5-in-row
-		position = position.setStone(board.toIndex(3, 3), Player.WHITE);
+		var board = new Board(7);
+		Position position = board.initialPosition()
+				// two before
+				.withStone(2, 3, WHITE)
+				.withStone(1, 3, WHITE)
+				// two after
+				.withStone(4, 3, WHITE)
+				.withStone(5, 3, WHITE)
+				// this makes 5-in-line
+				.withStone(3, 3, WHITE);
 		assertThat(position.isTerminal()).isTrue();
 	}
 

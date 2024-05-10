@@ -11,7 +11,7 @@ public interface Move extends IdTrait<Integer> {
 	/** Gets column where stone is put. */
 	int getColumn();
 
-	/** Gets row where stone is put. */
+	/** Gets line where stone is put. */
 	int getRow();
 
 }

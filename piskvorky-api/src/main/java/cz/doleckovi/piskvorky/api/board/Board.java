@@ -22,12 +22,4 @@ public interface Board {
 	 */
 	Position initialPosition();
 
-	/** Helper function for converting board coordinates to field index.
-	 * @param column Column number
-	 * @param row Row number
-	 * @return Field index
-	 * @throws IndexOutOfBoundsException if either column or row does not fit to board
-	 */
-	int toIndex(int column, int row) throws IndexOutOfBoundsException;
-
 }

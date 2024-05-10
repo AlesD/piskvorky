@@ -5,11 +5,20 @@ package cz.doleckovi.piskvorky.api.board;
  */
 public enum Direction {
 	/** Increases column number. */
-	LEFT,
-	/** Increases column number and row number. */
-	LEFT_DOWN,
-	/** Increases row number. */
-	DOWN,
-	/** Increases row number and decreases column number. */
-	DOWN_RIGHT
+	HORIZONTAL(0, 1),
+	/** Increases column number and line number. */
+	DOWNHILL(1, 1),
+	/** Increases line number. */
+	VERTICAL(1, 0),
+	/** Increases line number and decreases column number. */
+	UPHILL(-1, 1);
+
+	public final int rowDelta;
+	public final int columnDelta;
+
+	Direction(int rowDelta, int columnDelta) {
+		this.rowDelta = rowDelta;
+		this.columnDelta = columnDelta;
+	}
+
 }

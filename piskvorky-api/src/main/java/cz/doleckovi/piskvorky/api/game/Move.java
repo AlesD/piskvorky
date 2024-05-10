@@ -10,7 +10,7 @@ public interface Move {
 	 */
 	int getColumn();
 
-	/** Gets row where stone is put.
+	/** Gets line where stone is put.
 	 * @return Row number
 	 */
 	int getRow();
