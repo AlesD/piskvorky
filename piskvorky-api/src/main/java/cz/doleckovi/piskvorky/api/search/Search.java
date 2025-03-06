@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.api.search;
 
-import cz.doleckovi.piskvorky.api.board.Move;
+import cz.doleckovi.piskvorky.api.move.Move;
 import cz.doleckovi.piskvorky.api.board.Player;
 import cz.doleckovi.piskvorky.api.board.Position;
 

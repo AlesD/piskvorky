@@ -17,31 +17,16 @@ public interface Position {
 	 */
 	boolean isTerminal();
 
-	/**
-	 * Fields of the board.
-	 * @return Unmodifiable list of fields
-	 * @deprecated Forces field organization into list or array
-	 */
-	@Deprecated
-	List<? extends Field> fields();
-
-	/** Fields of single line of the board.
-	 * @param index Initial field
-	 * @param direction Direction
-	 * @return Field iterator that has specified field as previous
-	 */
-	FieldIterator<? extends Field> iterator(int index, Direction direction);
-
-	/** Puts stone on specific place on board.
+	/** Creates new position with given stone.
 	 * @param column Board column
 	 * @param row Board line
-	 * @param player Player placing the stone on board
-	 * @return New position with stone on specified field
+	 * @param stone Stone to place
+	 * @return New position with the stone on it
 	 * @throws IndexOutOfBoundsException if either column or line does not fit to board
-	 * @throws IllegalArgumentException  if the there is already stone on given line or column
-	 * @throws IllegalStateException     if invoked on terminal position
+	 * @throws IllegalArgumentException  if there is already stone other than EMPTY
+	 * @throws IllegalStateException     if invoked on terminal line
 	 */
-	Position setStone(int column, int row, Player player)
+	Position withStone(int column, int row, Stone stone)
 			throws IndexOutOfBoundsException, IllegalArgumentException, IllegalStateException;
 
 	/** Gets stone on specific place on board.
@@ -50,6 +35,6 @@ public interface Position {
 	 * @return Stone on the given position
 	 * @throws IndexOutOfBoundsException if either column or line does not fit to board
 	 */
-	Stone getStone(int column, int row) throws IndexOutOfBoundsException;
+	Stone stone(int column, int row) throws IndexOutOfBoundsException;
 
 }

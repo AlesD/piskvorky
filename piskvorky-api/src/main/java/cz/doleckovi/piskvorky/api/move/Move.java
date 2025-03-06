@@ -1,9 +1,9 @@
-package cz.doleckovi.piskvorky.api.board;
+package cz.doleckovi.piskvorky.api.move;
 
-import cz.doleckovi.piskvorky.api.traits.IdTrait;
+import cz.doleckovi.piskvorky.api.board.Player;
 
 /** Move playable in specific position. */
-public interface Move extends IdTrait<Integer> {
+public interface Move {
 
 	/** Gets player making the move. */
 	Player getPlayer();

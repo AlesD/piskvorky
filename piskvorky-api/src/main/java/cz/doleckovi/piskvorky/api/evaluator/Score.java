@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.api;
+package cz.doleckovi.piskvorky.api.evaluator;
 
 public interface Score extends Comparable<Score> {
 

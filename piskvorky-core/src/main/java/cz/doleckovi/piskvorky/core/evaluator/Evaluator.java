@@ -1,7 +1,6 @@
 package cz.doleckovi.piskvorky.core.evaluator;
 
-import cz.doleckovi.piskvorky.api.board.Row;
-import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.api.board.Line;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -26,8 +25,8 @@ public class Evaluator {
 		this.patterns = patterns;
 	}
 
-	public RowValue evaluate(Row row) {
-		var length = row.getLength();
+	public RowValue evaluate(Line line) {
+		var length = line.getLength();
 		Pattern[] whites;
 		Pattern[] blacks;
 		if (length < Pattern.LENGTH) {
@@ -45,7 +44,7 @@ public class Evaluator {
 			while (readIndex < Pattern.LENGTH) {
 				whiteBits <<= 1;
 				blackBits <<= 1;
-				switch (row.getStone(readIndex++)) {
+				switch (line.stone(readIndex++)) {
 					case WHITE -> whiteBits |= 1;
 					case BLACK -> blackBits |= 1;
 				}
@@ -67,7 +66,7 @@ public class Evaluator {
 				// Push stone
 				whiteBits <<= 1;
 				blackBits <<= 1;
-				switch (row.getStone(readIndex)) {
+				switch (line.stone(readIndex)) {
 					case WHITE -> whiteBits |= 1;
 					case BLACK -> blackBits |= 1;
 				}

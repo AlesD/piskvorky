@@ -6,7 +6,7 @@
 		<black name="John Doe"/>
 	</players>
 	<moves finished="true">
-		<move column="7" row="7" player="WHITE"/>
-		<move column="8" row="6" player="BLACK"/>
+		<move column="7" line="7" player="WHITE"/>
+		<move column="8" line="6" player="BLACK"/>
 	</moves>
 </game>

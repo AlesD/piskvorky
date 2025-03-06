@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.IntStream;
 
-public class LineTest implements WithAssertions {
+public class LineImplTest implements WithAssertions {
 
 	@ParameterizedTest
 	@EnumSource(value = Stone.class, names = {"WHITE", "BLACK"})
@@ -22,7 +22,7 @@ public class LineTest implements WithAssertions {
 		var moves = new LinkedList<Entry<Integer, Stone>>();
 		IntStream.range(0, Pattern.LENGTH).forEach(index -> moves.add(new SimpleImmutableEntry<>(index, stone)));
 		for (var permutation : generatePermutations(moves)) {
-			var line = new Line(Pattern.LENGTH);
+			var line = new LineImpl(Pattern.LENGTH);
 			for (var move : permutation) {
 				assertThat(line.isTerminal()).isFalse();
 				line = line.withStone(move.getKey(), move.getValue());
@@ -39,7 +39,7 @@ public class LineTest implements WithAssertions {
 			"#ooooo", "ooooo#", "#ooooo#"
 	})
 	void testBeforeAndAfterCalculation(String stones) {
-		var baseLine = new Line(stones.length());
+		var baseLine = new LineImpl(stones.length());
 		var moves = new LinkedList<Entry<Integer, Stone>>();
 		for (int index = 0; index < stones.length(); ++index) {
 			var stone = Stone.valueOf(stones.charAt(index));

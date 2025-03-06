@@ -5,19 +5,19 @@ import org.junit.jupiter.api.Test;
 import static cz.doleckovi.piskvorky.api.board.Stone.WHITE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PositionImplTest {
+class PositionImplImplTest {
 
 	@Test
 	void fields() {
-		var board = new Board(5);
+		var board = new BoardImpl(5);
 		var position = board.initialPosition().withStone(2, 2, WHITE);
 		assertThat(position.stone(2, 2)).isSameAs(WHITE);
 	}
 
 	@Test
 	void terminate() {
-		var board = new Board(7);
-		Position position = board.initialPosition()
+		var board = new BoardImpl(7);
+		PositionImpl position = board.initialPosition()
 				// two before
 				.withStone(2, 3, WHITE)
 				.withStone(1, 3, WHITE)

@@ -25,7 +25,7 @@
 	</complexType>
 	<complexType name="Move">
 		<attribute name="column" type="p:Coordinate" use="required"/>
-		<attribute name="row" type="p:Coordinate" use="required"/>
+		<attribute name="line" type="p:Coordinate" use="required"/>
 		<attribute name="player" type="p:Stone" use="required"/>
 	</complexType>
 	<complexType name="MoveList">

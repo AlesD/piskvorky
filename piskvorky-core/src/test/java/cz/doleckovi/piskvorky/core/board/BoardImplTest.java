@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Map;
 
-class BoardTest implements WithAssertions {
+class BoardImplTest implements WithAssertions {
 
 	private static class DirectionCondition extends Condition<LineDescriptor> {
 		DirectionCondition(Direction direction) {
@@ -26,7 +26,7 @@ class BoardTest implements WithAssertions {
 	@ParameterizedTest
 	@ValueSource(ints = {5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 100, 1000})
 	void testLineCounts(int size) {
-		var lineDescriptors = Board.generateLineDescriptors(size, Board.generateFieldDescriptors(size, Board.generateFieldAddresses(size)));
+		var lineDescriptors = BoardImpl.generateLineDescriptors(size, BoardImpl.generateFieldDescriptors(size, BoardImpl.generateFieldAddresses(size)));
 		assertThat(lineDescriptors)
 				.haveExactly(size, HORIZONTAL_LINE)
 				.haveExactly(size, VERTICAL_LINE)
@@ -70,10 +70,10 @@ class BoardTest implements WithAssertions {
 	 */
 	@Test
 	void testLineAddresses() {
-		var fieldDescriptor = new Board(6).fieldDescriptor(3, 2);
+		var fieldDescriptor = new BoardImpl(6).fieldDescriptor(3, 2);
 		var fieldAddress = fieldDescriptor.fieldAddress();
 		assertThat(fieldDescriptor.lineAddresses())
-				.containsExactly(
+				.containsOnly(
 						Map.entry(Direction.HORIZONTAL, new LineAddress(2, 3, fieldAddress)),
 						Map.entry(Direction.VERTICAL, new LineAddress(9, 2, fieldAddress)),
 						Map.entry(Direction.DOWNHILL, new LineAddress(12, 2, fieldAddress)),

@@ -10,10 +10,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import cz.doleckovi.piskvorky.api.board.Board;
 import cz.doleckovi.piskvorky.api.board.Direction;
 import cz.doleckovi.piskvorky.core.evaluator.Pattern;
 
-public final class Board {
+public final class BoardImpl implements Board {
 
 	/** Generates mapping from FieldAddress to filedIndex.
 	 *
@@ -125,7 +126,7 @@ public final class Board {
 			var lineIndex = result.size();
 			var offset = maxLineOffset[lineIndex];
 			assert offset != -1;
-			result.add(new LineDescriptor(lineIndex, offset, directions[lineIndex]));
+			result.add(new LineDescriptor(lineIndex, offset + 1, directions[lineIndex]));
 		}
 		return result;
 	}
@@ -134,13 +135,13 @@ public final class Board {
 	private final List<FieldDescriptor> fieldDescriptors;
 	private final List<LineDescriptor> lineDescriptors;
 	private final FieldDescriptor[][] fieldDescriptorArray;
-	private final Position initialPosition;
+	private final PositionImpl initialPosition;
 
 
 	/** Create new board instance.
 	 * @param size Board size
 	 */
-	public Board(int size) {
+	public BoardImpl(int size) {
 		if (size < Pattern.LENGTH)
 			throw new IllegalArgumentException("Minimal size of the board is " + Pattern.LENGTH);
 
@@ -158,14 +159,24 @@ public final class Board {
 		Arrays.fill(row, Field.EMPTY);
 		var fields = new Field[size][];
 		Arrays.fill(fields, row);
-		var lines = new Line[lineDescriptors.size()];
-		Map<Integer, Line> lineCache = HashMap.newHashMap(size);
+		var lines = new LineImpl[lineDescriptors.size()];
+		Map<Integer, LineImpl> lineCache = HashMap.newHashMap(size);
 		for (int lineIndex = 0; lineIndex < lineDescriptors.size(); ++lineIndex)
-			lines[lineIndex] = lineCache.computeIfAbsent(lineDescriptors.get(lineIndex).length(), Line::new);
-		initialPosition = new Position(this, fields, lines, false);
+			lines[lineIndex] = lineCache.computeIfAbsent(lineDescriptors.get(lineIndex).length(), LineImpl::new);
+		initialPosition = new PositionImpl(this, fields, lines, false);
 	}
 
-	public Position initialPosition() {
+	@Override
+	public int getWidth() {
+		return size;
+	}
+
+	@Override
+	public int getHeight() {
+		return size;
+	}
+
+	public PositionImpl initialPosition() {
 		return initialPosition;
 	}
 
@@ -190,7 +201,7 @@ public final class Board {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o instanceof Board that) {
+		if (o instanceof BoardImpl that) {
 			return size == that.size;
 		}
 		return false;
