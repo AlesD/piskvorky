@@ -1,4 +1,6 @@
-package cz.doleckovi.piskvorky.api.board;
+package cz.doleckovi.piskvorky.core.board;
+
+import cz.doleckovi.piskvorky.api.board.Stone;
 
 /** Line on the board. */
 public interface Line {

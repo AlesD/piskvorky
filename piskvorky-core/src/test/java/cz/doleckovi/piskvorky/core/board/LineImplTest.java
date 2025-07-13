@@ -1,7 +1,7 @@
 package cz.doleckovi.piskvorky.core.board;
 
+import cz.doleckovi.piskvorky.api.Piskvorky;
 import cz.doleckovi.piskvorky.api.board.Stone;
-import cz.doleckovi.piskvorky.core.evaluator.Pattern;
 import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -20,9 +20,9 @@ public class LineImplTest implements WithAssertions {
 	@EnumSource(value = Stone.class, names = {"WHITE", "BLACK"})
 	void testTerminalCalculation(Stone stone) {
 		var moves = new LinkedList<Entry<Integer, Stone>>();
-		IntStream.range(0, Pattern.LENGTH).forEach(index -> moves.add(new SimpleImmutableEntry<>(index, stone)));
+		IntStream.range(0, Piskvorky.SIZE).forEach(index -> moves.add(new SimpleImmutableEntry<>(index, stone)));
 		for (var permutation : generatePermutations(moves)) {
-			var line = new LineImpl(Pattern.LENGTH);
+			var line = new LineImpl(Piskvorky.SIZE);
 			for (var move : permutation) {
 				assertThat(line.isTerminal()).isFalse();
 				line = line.withStone(move.getKey(), move.getValue());

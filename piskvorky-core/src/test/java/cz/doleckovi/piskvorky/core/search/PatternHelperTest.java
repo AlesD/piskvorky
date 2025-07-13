@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.core.evaluator;
+package cz.doleckovi.piskvorky.core.search;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,13 +39,13 @@ public class PatternHelperTest {
 
 	@Test
 	void defaultValues() {
-		var defaultValues = PatternHelper.defaultValues();
-		assertThat(defaultValues[PatternHelper.bits("XOOOOO")])
+		var defaultValues = PatternHelper.defaultPatterns();
+		assertThat(defaultValues[PatternHelper.bits("XOOOOO")].classes)
 				.hasSize(5)
-				.containsOnly(Pattern.FIVE_IN_ROW)
+				.containsOnly(StoneClass.FIVE_IN_ROW)
 				.isSameAs(defaultValues[PatternHelper.bits("-OOOOO")]);
-		assertThat(defaultValues[PatternHelper.bits("X-OO--")])
-				.containsExactly(Pattern.THREE, Pattern.TWO, Pattern.TWO, Pattern.THREE, Pattern.THREE)
+		assertThat(defaultValues[PatternHelper.bits("X-OO--")].classes)
+				.containsExactly(StoneClass.THREE, StoneClass.TWO, StoneClass.TWO, StoneClass.THREE, StoneClass.THREE)
 				.isSameAs(defaultValues[PatternHelper.bits("--OO--")]);
 	}
 

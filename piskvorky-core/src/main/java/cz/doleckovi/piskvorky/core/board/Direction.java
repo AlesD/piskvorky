@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.api.board;
+package cz.doleckovi.piskvorky.core.board;
 
 /** Direction on the board. */
 public enum Direction {

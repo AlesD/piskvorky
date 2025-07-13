@@ -1,7 +1,5 @@
 package cz.doleckovi.piskvorky.api.board;
 
-import java.util.Objects;
-
 /** Stone placed on board. */
 public enum Stone {
 

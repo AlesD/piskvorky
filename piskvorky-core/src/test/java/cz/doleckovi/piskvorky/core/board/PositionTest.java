@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.core.board;
 //
-//import cz.doleckovi.piskvorky.api.board.Player;
+//import cz.doleckovi.piskvorky.api.search.Player;
 //import cz.doleckovi.piskvorky.api.board.Position;
 //import cz.doleckovi.piskvorky.api.board.Stone;
 //import org.junit.jupiter.api.Test;

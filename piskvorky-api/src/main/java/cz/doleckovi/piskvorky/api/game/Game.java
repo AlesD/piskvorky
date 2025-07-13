@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.api.game;
 
-import cz.doleckovi.piskvorky.api.board.Player;
+import cz.doleckovi.piskvorky.api.search.Player;
 import cz.doleckovi.piskvorky.api.board.Position;
 
 import java.util.List;

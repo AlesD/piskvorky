@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.core.evaluator;
+package cz.doleckovi.piskvorky.core.search;
 //
 //import cz.doleckovi.piskvorky.api.board.Stone;
 //import org.assertj.core.api.AbstractObjectAssert;

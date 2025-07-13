@@ -1,20 +1,11 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import cz.doleckovi.piskvorky.api.Piskvorky;
 import cz.doleckovi.piskvorky.api.board.Board;
-import cz.doleckovi.piskvorky.api.board.Direction;
-import cz.doleckovi.piskvorky.core.evaluator.Pattern;
 
-public final class BoardImpl implements Board {
+import java.util.*;
+
+public class BoardImpl implements Board<PositionImpl> {
 
 	/** Generates mapping from FieldAddress to filedIndex.
 	 *
@@ -28,34 +19,35 @@ public final class BoardImpl implements Board {
 	 */
 	static List<FieldAddress> generateFieldAddresses(int size) {
 		var result = new ArrayList<FieldAddress>(size * size);
-		var fieldIndexes = new int[size][size];
-		for (int row = 0; row < size; ++row)
-			for (int col = 0; col < size; ++col)
-				fieldIndexes[row][col] = -1;
-		var queue = new LinkedList<FieldAddress>();
-		int fieldIndex = 0;
-		queue.add(new FieldAddress(fieldIndex++, size / 2, size / 2));
+		var fieldIndexes = new boolean[size][size];
+		var queue = new PriorityQueue<>(size * size, Comparator.comparing(FieldAddress::fieldIndex));
+		queue.add(new FieldAddress(0, size / 2, size / 2));
 		while (!queue.isEmpty()) {
 			var address = queue.remove();
-			if (fieldIndexes[address.row()][address.column()] == -1) {
-				fieldIndexes[address.row()][address.column()] = result.size();
-				result.add(address);
-				if (address.row() > 0)
-					queue.add(new FieldAddress(fieldIndex++, address.row() - 1, address.column()));
-				if (address.column() > 0)
-					queue.add(new FieldAddress(fieldIndex++, address.row(), address.column() - 1));
-				if (address.row() < size - 1)
-					queue.add(new FieldAddress(fieldIndex++, address.row() + 1, address.column()));
-				if (address.column() < size - 1)
-					queue.add(new FieldAddress(fieldIndex++, address.row(), address.column() + 1));
+			if (address.column() >= 0 && address.column() < size && address.row() >= 0 && address.row() < size
+					&& !fieldIndexes[address.row()][address.column()])
+			{
+				fieldIndexes[address.row()][address.column()] = true;
+				result.add(new FieldAddress(result.size(), address.column(), address.row()));
+				int index = address.fieldIndex() / 10 * 10;
+				queue.add(new FieldAddress(index + 20, address.column() - 1, address.row()));
+				queue.add(new FieldAddress(index + 21, address.column(), address.row() - 1));
+				queue.add(new FieldAddress(index + 22, address.column() + 1, address.row()));
+				queue.add(new FieldAddress(index + 23, address.column(), address.row() + 1));
+				queue.add(new FieldAddress(index + 30, address.column() - 1, address.row() - 1));
+				queue.add(new FieldAddress(index + 31, address.column() + 1, address.row() - 1));
+				queue.add(new FieldAddress(index + 32, address.column() - 1, address.row() + 1));
+				queue.add(new FieldAddress(index + 33, address.column() + 1, address.row() + 1));
 			}
 		}
-		assert Arrays.stream(fieldIndexes).flatMapToInt(Arrays::stream).allMatch(index -> index != -1);
+		for (int row = 0; row < size; ++row)
+			for (int column = 0; column < size; ++column)
+				assert fieldIndexes[row][column];
 		return result;
 	}
 
 	static List<FieldDescriptor> generateFieldDescriptors(int size, List<FieldAddress> fieldAddresses) {
-		var diagonalCount = 2 * (size - Pattern.LENGTH) + 1;
+		var diagonalCount = 2 * (size - Piskvorky.SIZE) + 1;
 		var mainDiagonalOffset = diagonalCount / 2;
 		var firstDownhillLineIndex = size + size;
 		var firstUphillLineIndex = firstDownhillLineIndex + diagonalCount;
@@ -80,7 +72,7 @@ public final class BoardImpl implements Board {
 				length = size - diagonalIndexOffset;
 				offset = column;
 			}
-			if (length >= Pattern.LENGTH) {
+			if (length >= Piskvorky.SIZE) {
 				var lineIndex = mainDownhillDiagonalIndex + diagonalIndexOffset;
 				lineAddresses.put(Direction.DOWNHILL, new LineAddress(lineIndex, offset, fieldAddress));
 			}
@@ -94,18 +86,18 @@ public final class BoardImpl implements Board {
 				length = size - diagonalIndexOffset;
 				offset = invertedRow;
 			}
-			if (length >= Pattern.LENGTH) {
+			if (length >= Piskvorky.SIZE) {
 				var lineIndex = mainUphillDiagonalIndex + diagonalIndexOffset;
 				lineAddresses.put(Direction.UPHILL, new LineAddress(lineIndex, offset, fieldAddress));
 			}
 			result.add(new FieldDescriptor(fieldAddress, Collections.unmodifiableMap(lineAddresses)));
 		}
 		assert result.size() == size * size;
-		return result;
+		return List.copyOf(result);
 	}
 
 	static List<LineDescriptor> generateLineDescriptors(int size, List<FieldDescriptor> fieldDescriptors) {
-		var maxLineOffset = new int[6 * size - 4 * Pattern.LENGTH + 2];
+		var maxLineOffset = new int[6 * size - 4 * Piskvorky.SIZE + 2];
 		Arrays.fill(maxLineOffset, -1);
 		var directions = new Direction[maxLineOffset.length];
 		for (var fieldDescriptor : fieldDescriptors)
@@ -139,40 +131,39 @@ public final class BoardImpl implements Board {
 
 
 	/** Create new board instance.
-	 * @param size Board size
+	 * @param sideSize Board side size
 	 */
-	public BoardImpl(int size) {
-		if (size < Pattern.LENGTH)
-			throw new IllegalArgumentException("Minimal size of the board is " + Pattern.LENGTH);
+	public BoardImpl(int sideSize) {
+		if (sideSize < Piskvorky.SIZE)
+			throw new IllegalArgumentException(String.format("Minimal side size of the board is %d", Piskvorky.SIZE));
 
-		this.size = size;
-		this.fieldDescriptors = generateFieldDescriptors(size, generateFieldAddresses(size));
-		this.fieldDescriptorArray = new FieldDescriptor[size][size];
-		this.lineDescriptors = List.copyOf(generateLineDescriptors(size, fieldDescriptors));
-
+		this.size = sideSize;
+		this.fieldDescriptors = generateFieldDescriptors(sideSize, generateFieldAddresses(sideSize));
+		this.fieldDescriptorArray = new FieldDescriptor[sideSize][sideSize];
 		for (var fieldDescriptor : fieldDescriptors) {
 			var fieldAddress = fieldDescriptor.fieldAddress();
 			fieldDescriptorArray[fieldAddress.row()][fieldAddress.column()] = fieldDescriptor;
 		}
+		this.lineDescriptors = List.copyOf(generateLineDescriptors(sideSize, fieldDescriptors));
 
-		var row = new Field[size];
+		var row = new Field[sideSize];
 		Arrays.fill(row, Field.EMPTY);
-		var fields = new Field[size][];
+		var fields = new Field[sideSize][];
 		Arrays.fill(fields, row);
 		var lines = new LineImpl[lineDescriptors.size()];
-		Map<Integer, LineImpl> lineCache = HashMap.newHashMap(size);
+		Map<Integer, LineImpl> lineCache = HashMap.newHashMap(sideSize);
 		for (int lineIndex = 0; lineIndex < lineDescriptors.size(); ++lineIndex)
 			lines[lineIndex] = lineCache.computeIfAbsent(lineDescriptors.get(lineIndex).length(), LineImpl::new);
 		initialPosition = new PositionImpl(this, fields, lines, false);
 	}
 
 	@Override
-	public int getWidth() {
+	public int width() {
 		return size;
 	}
 
 	@Override
-	public int getHeight() {
+	public int height() {
 		return size;
 	}
 

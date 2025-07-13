@@ -1,4 +1,6 @@
-package cz.doleckovi.piskvorky.api.board;
+package cz.doleckovi.piskvorky.api.search;
+
+import cz.doleckovi.piskvorky.api.board.Stone;
 
 /** Symbolic constants for players. */
 public enum Player {
@@ -8,9 +10,7 @@ public enum Player {
 	/** Player playing with black stones. */
 	BLACK(Stone.BLACK);
 
-	/** Stone used by the player.
-	 * <p>The value is never {@link Stone#EMPTY}.</p>
-	 */
+	/** Stone used by the player. */
 	public final Stone stone;
 
 	Player(Stone stone) {

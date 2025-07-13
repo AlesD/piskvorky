@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.core.board;
 //
-//import cz.doleckovi.piskvorky.api.board.Direction;
+//import cz.doleckovi.piskvorky.core.board.Direction;
 //import cz.doleckovi.piskvorky.api.board.FieldIterator;
 //import org.junit.jupiter.api.Test;
 //

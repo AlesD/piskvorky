@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.api.notification;
 
-import cz.doleckovi.piskvorky.api.move.Move;
+import cz.doleckovi.piskvorky.api.search.Move;
 
 import java.util.StringJoiner;
 
