@@ -14,21 +14,15 @@ import java.util.stream.Stream;
 
 class ScoreImplTest implements WithAssertions {
 
-	void assertions(ScoreImpl score1, ScoreImpl score2, boolean score1betterForWhite, boolean score1betterForBlack,
-			boolean score2betterForWhite, boolean score2betterForBlack)
-	{
-		assertThat(score1.isBetterThan(score2, Player.WHITE)).isEqualTo(score1betterForWhite);
-		assertThat(score1.isBetterThan(score2, Player.BLACK)).isEqualTo(score1betterForBlack);
-		assertThat(score2.isBetterThan(score1, Player.WHITE)).isEqualTo(score2betterForWhite);
-		assertThat(score2.isBetterThan(score1, Player.BLACK)).isEqualTo(score2betterForBlack);
-	}
-
-	ScoreImpl score(int whiteStones, int blackStones) {
-		return new ScoreImpl(new int[] {whiteStones}, new int[] {blackStones});
-	}
-
 	static Entry<String, ScoreImpl> score(String name, int whiteStones, int blackStones) {
 		return new SimpleImmutableEntry<>(name, new ScoreImpl(new int[] {whiteStones}, new int[] {blackStones}));
+	}
+
+	static Entry<String, ScoreImpl> score(String name, int lowClassWhiteStoneCount, int lowClassBlackStoneCount,
+			int highClassWhiteStoneCount, int highClassBlackStoneCount) {
+		return new SimpleImmutableEntry<>(name, new ScoreImpl(
+				new int[] {lowClassWhiteStoneCount, highClassWhiteStoneCount},
+				new int[] {lowClassBlackStoneCount, highClassBlackStoneCount}));
 	}
 
 	private static Arguments arguments(Player player, Entry<String, ScoreImpl> score1, Entry<String, ScoreImpl> score2, boolean result)
@@ -53,32 +47,64 @@ class ScoreImplTest implements WithAssertions {
 		);
 	}
 
-	private static Stream<Arguments> scoresWithUnequalDifferences() {
-		var goodForWhite = score("good for white", 2, 1);
-		var goodForBlack = score("good for black", 1, 2);
-		var betterForWhite = score("better for white", 3, 1);
+	private static Stream<Arguments> unequalScores() {
+		var goodForWhite = score("1:3, 2:1", 1, 3, 2, 1);
+		var goodForBlack = score("2:1, 1:2", 2, 1, 1, 2);
+		var betterForWhite = score("1:2, 2:1", 1, 2, 2, 1);
+		var littleMoreHighClassStones = score("0:4, 3:1", 0, 4, 3, 1);
+		var wayMoreLowClassStones = score("0:4, 3:1", 0, 4, 3, 1);
+		var moreLowClassStones = score("2:1, 2:1", 2, 1, 2, 1);
+		var fewerLowClassStones = score("2:2, 3:2", 2, 2, 3, 2);
 		return Stream.of(
+				// Winning vs.loosing is easy to decide (higher class of stones decides)
 				arguments(goodForWhite, goodForBlack, true, false, false, true),
-				arguments(goodForWhite, betterForWhite, false, true, true, false)
+				// Winning by little vs winning by far is also easy
+				arguments(goodForWhite, betterForWhite, false, true, true, false),
+				// Having little more high class stones is still better even if opponent has (way) more stones of lower class
+				arguments(littleMoreHighClassStones, wayMoreLowClassStones, true, false, false, true),
+				// What is better - having 3 vs. 2 high class stones or 2 vs. 1 high class stone?
+				// Both is +1 difference => look at lower class of stones to decide
+				arguments(moreLowClassStones, fewerLowClassStones, true, false, false, true)
 		).flatMap(Function.identity());
 	}
 
 	private static Stream<Arguments> scoresWithEqualDifferences() {
-		// Both players have more stones in 3:2 position
-		// White player has +1 advantage in both positions
-		// => Both players prefer positions with more stones
-		// For winning player it is obvious
-		// but for loosing player (if he was on move) it provides more threats
-		var white21 = score("white 2:1", 2, 1);
-		var white32 = score("white 3:2", 3, 2);
+		var winningWithLessStones = score("2:4, 2:1", 2, 4, 2, 1);
+		var winningWithMoreStones = score("1:3, 3:2", 1, 3, 3, 2);
+		var loosingWithLessStones = score("2:4, 2:1", 2, 4, 2, 1);
+		var loosingWithMoreStones = score("1:3, 3:2", 1, 3, 3, 2);
+		// These are more tricky to decide ...
 		return Stream.of(
-				arguments(white21, white32, false, false, true, true)
+				// With 2 scores that both have +1 high class stones and -2 low class stones ...
+				// Avoid gaining unnecessary stones if opponent gains as well => fewer stones ~ faster win
+				arguments(winningWithLessStones, winningWithMoreStones, true, false, false, true),
+				// However if loosing use different approach => more stones ~ slower defeat
+				// In other words - give opponent chance to make mistake
+				arguments(loosingWithLessStones, loosingWithMoreStones, false, true, true, false)
 		).flatMap(Function.identity());
 	}
 
+	private static Stream<Arguments> scoresWithZeroDifferences() {
+		return Stream.of(
+
+		);//.flatMap(Function.identity());
+	}
+
+	private static Stream<Arguments> terminalScores() {
+		return Stream.of(
+
+		);//.flatMap(Function.identity());
+	}
+
 	@ParameterizedTest
-	@MethodSource("scoresWithUnequalDifferences")
+	@MethodSource
 	void unequalScores(Player player, ScoreImpl score1, ScoreImpl score2, boolean expectedResult) {
+		assertThat(score1.isBetterThan(score2, player)).isEqualTo(expectedResult);
+	}
+
+	@ParameterizedTest
+	@MethodSource
+	void scoresWithEqualDifferences(Player player, ScoreImpl score1, ScoreImpl score2, boolean expectedResult) {
 		assertThat(score1.isBetterThan(score2, player)).isEqualTo(expectedResult);
 	}
 

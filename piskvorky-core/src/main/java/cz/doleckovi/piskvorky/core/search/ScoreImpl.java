@@ -27,14 +27,13 @@ class ScoreImpl implements Score<ScoreImpl> {
 		diff = new int[white.length];
 		sum = new int[white.length];
 		int cardinality = 0;
-		int diff = 0;
 		int sum = 0;
-		for (int index = 0; index < white.length; ++index) {
-			diff = diff + white[index] - black[index];
-			this.diff[index] = diff;
-			if (diff != 0)
-				cardinality = index;
+		int index = white.length;
+		while (--index >= 0) {
+			this.diff[index] = white[index] - black[index];
 			sum = sum + white[index] + black[index];
+			if (cardinality == 0 && sum != 0)
+				cardinality = index;
 			this.sum[index] = sum;
 		}
 		this.cardinality = cardinality;
