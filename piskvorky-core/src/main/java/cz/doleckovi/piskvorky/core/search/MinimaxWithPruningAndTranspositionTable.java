@@ -77,7 +77,7 @@ public class MinimaxWithPruningAndTranspositionTable<P extends Position<P>, S ex
 		} else {
 			moves = moveGenerator.generateMoves(whitePosition, Player.BLACK).iterator();
 			if (!moves.hasNext()) {
-				var score = evaluator.evaluateDraw(whitePosition);
+				var score = evaluator.evaluate(whitePosition);
 				transpositionTable.store(whitePosition, depth, score, EntryType.EXACT);
 				return score;
 			}
@@ -127,7 +127,7 @@ public class MinimaxWithPruningAndTranspositionTable<P extends Position<P>, S ex
 		}
 		Iterator<? extends Move> moves = moveGenerator.generateMoves(blackPosition, Player.WHITE).iterator();
 		if (!moves.hasNext()) {
-			var score = evaluator.evaluateDraw(blackPosition);
+			var score = evaluator.evaluate(blackPosition);
 			transpositionTable.store(blackPosition, depth, score, EntryType.EXACT);
 			return score;
 		}

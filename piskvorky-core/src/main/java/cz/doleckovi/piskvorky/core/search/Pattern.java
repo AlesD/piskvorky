@@ -1,11 +1,8 @@
 package cz.doleckovi.piskvorky.core.search;
 
 import cz.doleckovi.piskvorky.api.Piskvorky;
-import cz.doleckovi.piskvorky.api.board.Stone;
 
 import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Objects;
 
 class Pattern {
 
@@ -15,34 +12,52 @@ class Pattern {
 	 * <p>Number of combinations of stones ×2 - once if extra opponent stone is empty and once if it is present.</p>
 	 */
 	public static final int COUNT = (1 << LENGTH) * 2;
-	/** Mask for extra <strong>opponent</strong> stone at start. */
+	/** Mask for extra <strong>opponent</strong> stone at the start. */
 	public static final int OPPONENT_MASK = 1 << LENGTH;
 	/** Mask for player stones. */
 	public static final int PLAYER_MASK = OPPONENT_MASK - 1;
 
+	private static final int BITS_MASK = OPPONENT_MASK | PLAYER_MASK;
+
+	/** Invalid pattern.
+	 * <p>Pattern with all stone classes set to NONE.</p>
+	 */
 	public static Pattern INVALID = new Pattern();
 
+	static int bitCount(int bits) {
+		int result = 0;
+		bits &= PLAYER_MASK;
+		while (bits != 0) {
+			result += bits & 1;
+			bits >>>= 1;
+		}
+		return result;
+	}
+
+	final int bits;
 	final StoneClass[] classes;
 
 	private Pattern() {
+		bits = Integer.MIN_VALUE; //-2147483648
 		classes = new StoneClass[LENGTH];
 		Arrays.fill(classes, StoneClass.NONE);
 	}
 
-	Pattern(BitSet bits, StoneClass[] classes) {
+	Pattern(int bits, StoneClass[] classes) {
 		if (classes.length != LENGTH)
-			throw new IllegalArgumentException("Invalid number of bits");
-		if (bits.length() != LENGTH)
-			throw new IllegalArgumentException("Invalid number of stone classes");
-		Objects.requireNonNull(bits);
-		this.classes = classes;
-		var cardinality = bits.cardinality();
+			throw new IllegalArgumentException("Invalid number of stone classes: %d".formatted(classes.length));
+		if ((bits & BITS_MASK) != bits)
+			throw new IllegalArgumentException("Invalid pattern ID: %d".formatted(bits));
+		this.bits = bits;
+		this.classes = classes.clone();
+		var cardinality = bitCount(bits);
+		var mask = OPPONENT_MASK;
 		for (var index = 0; index < LENGTH; ++index) {
-			var classCardinality = classes[index].cardinality();
-			if (bits.get(index)) {
-				if (classCardinality != cardinality)
+			mask >>>= 1;
+			if ((bits & mask) == mask) {
+				if (classes[index].cardinality() != cardinality)
 					throw new IllegalArgumentException(String.format("Stone at index %d has wrong cardinality", index));
-			} else if (classCardinality != cardinality + 1)
+			} else if (classes[index].cardinality() != cardinality + 1)
 				throw new IllegalArgumentException(String.format("Empty place at index %d has wrong cardinality", index));
 		}
 	}

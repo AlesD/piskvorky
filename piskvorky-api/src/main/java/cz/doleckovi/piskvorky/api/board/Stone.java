@@ -15,8 +15,8 @@ public enum Stone {
 	public static Stone valueOf(char symbol) {
 		return switch (symbol) {
 			case '·', ' ', '-' -> EMPTY;
-			case '⚪', 'O', 'o' -> WHITE;
-			case '⚫', 'X', 'x' -> BLACK;
+			case '○', '⚪', 'O', 'o' -> WHITE;
+			case '●', '⚫', 'X', 'x' -> BLACK;
 			case '×', '#' -> BLOCK;
 			default -> throw new IllegalArgumentException("Unknown stone symbol: " + symbol);
 		};
@@ -35,8 +35,8 @@ public enum Stone {
 	public String toString() {
 		return switch (this) {
 			case EMPTY -> "·";
-			case WHITE -> "⚪";
-			case BLACK -> "⚫";
+			case WHITE -> "○"; // White circle U+25CB
+			case BLACK -> "●"; // Black circle U+25CF
 			case BLOCK -> "×";
 		};
 	}

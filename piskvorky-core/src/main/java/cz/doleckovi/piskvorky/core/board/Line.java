@@ -5,10 +5,10 @@ import cz.doleckovi.piskvorky.api.board.Stone;
 /** Line on the board. */
 public interface Line {
 
-	/** Gets line length.
+	/** Line length.
 	 * @return Line length
 	 */
-	int getLength();
+	int length();
 
 	/** Determine if the line is terminal.
 	 * @return true if the line contains 5-in-line

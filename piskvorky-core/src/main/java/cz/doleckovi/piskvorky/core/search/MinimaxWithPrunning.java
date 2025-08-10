@@ -50,7 +50,7 @@ public class MinimaxWithPrunning<P extends Position<P>, S extends Score<S>> impl
 			return evaluator.evaluate(position);
 		var moves = moveGenerator.generateMoves(position, player.opponent()).iterator();
 		if (!moves.hasNext())
-			return evaluator.evaluateDraw(position);
+			return evaluator.evaluate(position);
 		S result = null;
 		do {
 			result = search(position.afterMove(moves.next()), depth, lowerBound, upperBound, player.opponent()).betterOf(result, player);

@@ -19,7 +19,6 @@ class LineImpl implements Line {
 	}
 
 	private final Stone[] stones;
-
 	private final boolean terminal;
 
 	private LineImpl(Stone[] stones, boolean terminal) {
@@ -35,7 +34,7 @@ class LineImpl implements Line {
 	}
 
 	@Override
-	public int getLength() {
+	public int length() {
 		return stones.length;
 	}
 

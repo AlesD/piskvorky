@@ -9,7 +9,7 @@ import static cz.doleckovi.piskvorky.core.search.Pattern.*;
 public class PatternHelper {
 
 	static int bits(String stones) {
-		if (stones.length() != LENGTH)
+		if (stones.length() != LENGTH + 1)
 			throw new IllegalArgumentException(String.format("Pattern must contain exactly %d stones", LENGTH));
 		var result = 0;
 		var mask = OPPONENT_MASK;
@@ -26,22 +26,13 @@ public class PatternHelper {
 		return result;
 	}
 
-	static int bitCount(int bits) {
-		int result = 0;
-		while (bits != 0) {
-			result += bits & 1;
-			bits >>>= 1;
-		}
-		return result;
-	}
-
 	private static StoneClass stoneClass(int cardinality) {
 		return switch (cardinality) {
 			case 1 -> StoneClass.ONE;
 			case 2 -> StoneClass.TWO;
 			case 3 -> StoneClass.THREE;
 			case 4 -> StoneClass.FOUR;
-			case 5 -> StoneClass.FIVE_IN_ROW;
+			case 5 -> StoneClass.FIVE;
 			default -> StoneClass.NONE;
 		};
 	}
@@ -52,7 +43,7 @@ public class PatternHelper {
 			case 1 -> StoneClass.TWO;
 			case 2 -> StoneClass.THREE;
 			case 3 -> StoneClass.FOUR;
-			case 4 -> StoneClass.FIVE_IN_ROW;
+			case 4 -> StoneClass.FIVE;
 			default -> StoneClass.NONE;
 		};
 	}
@@ -69,15 +60,18 @@ public class PatternHelper {
 
 	static Pattern[] defaultPatterns() {
 		var result = new Pattern[COUNT];
-		// Fill from pattern with all stones to pattern with no stones => pattern with extra stone is always defined
+		// Fill from a pattern with all stones to pattern with no stones => a pattern with extra stone is always defined
 		var classes = new StoneClass[LENGTH];
 		for (int patternId = PLAYER_MASK; patternId >= 0; --patternId) {
-			var bits = toBits(patternId);
-			var stoneClass = stoneClass(bits.cardinality());
-			var emptyClass = emptyClass(stoneClass.cardinality());
-			for (int index = 0; index < LENGTH; ++index)
-				classes[index] = bits.get(index) ? stoneClass : emptyClass;
-			var pattern = new Pattern(bits, classes);
+			var bits = bitCount(patternId);
+			var stoneClass = stoneClass(bits);
+			var emptyClass = emptyClass(bits);
+			var mask = OPPONENT_MASK;
+			for (var index = 0; index < LENGTH; ++index) {
+				mask >>>= 1;
+				classes[index] = (patternId & mask) == mask ? stoneClass : emptyClass;
+			}
+			var pattern = new Pattern(patternId, classes);
 			result[patternId] = pattern;
 			result[patternId | OPPONENT_MASK] = pattern;
 		}

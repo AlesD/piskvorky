@@ -4,8 +4,11 @@ import cz.doleckovi.piskvorky.api.board.Position;
 import cz.doleckovi.piskvorky.api.search.*;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class Minimax<P extends Position<P>, S extends Score<S>> implements Search<P> {
+
+	private static final Logger LOG = Logger.getLogger(Minimax.class.getName());
 
 	private final MoveGenerator<P> moveGenerator;
 	private final Evaluator<P, S> evaluator;
@@ -26,7 +29,9 @@ public class Minimax<P extends Position<P>, S extends Score<S>> implements Searc
 		S bestScore = null;
 		while (moves.hasNext()) {
 			var move = moves.next();
-			S score = search(position, depth, player.opponent()).betterOf(bestScore, player);
+			System.out.printf("Move %s:", move.toString());
+			S score = search(position.afterMove(move), depth, player.opponent()).betterOf(bestScore, player);
+			System.out.println(score);
 			if (score != bestScore) {
 				bestScore = score;
 				bestMove = move;
@@ -45,9 +50,9 @@ public class Minimax<P extends Position<P>, S extends Score<S>> implements Searc
 		}
 		if (--depth < 0)
 			return evaluator.evaluate(position);
-		var moves = moveGenerator.generateMoves(position, player.opponent()).iterator();
+		var moves = moveGenerator.generateMoves(position, player).iterator();
 		if (!moves.hasNext())
-			return evaluator.evaluateDraw(position);
+			return evaluator.evaluate(position);
 		S result = null;
 		do {
 			result = search(position.afterMove(moves.next()), depth, player.opponent()).betterOf(result, player);

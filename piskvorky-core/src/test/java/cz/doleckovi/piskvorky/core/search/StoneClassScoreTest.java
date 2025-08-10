@@ -1,0 +1,129 @@
+package cz.doleckovi.piskvorky.core.search;
+
+import cz.doleckovi.piskvorky.api.search.Player;
+import org.assertj.core.api.WithAssertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+class StoneClassScoreTest implements WithAssertions {
+
+	static Entry<String, StoneClassScore> score(String name, int whiteStones, int blackStones) {
+		return new SimpleImmutableEntry<>(name, new StoneClassScore(new int[] {whiteStones}, new int[] {blackStones}));
+	}
+
+	static Entry<String, StoneClassScore> score(int whiteStoneCount, int blackStoneCount) {
+		return new SimpleImmutableEntry<>("", new StoneClassScore(new int[] {whiteStoneCount}, new int[] {blackStoneCount}));
+	}
+
+	static Entry<String, StoneClassScore> score(int lowClassWhiteStoneCount, int lowClassBlackStoneCount,
+												int highClassWhiteStoneCount, int highClassBlackStoneCount)
+	{
+		return score("", lowClassWhiteStoneCount, lowClassBlackStoneCount, highClassWhiteStoneCount, highClassBlackStoneCount);
+	}
+
+	static Entry<String, StoneClassScore> score(String name, int lowClassWhiteStoneCount, int lowClassBlackStoneCount,
+												int highClassWhiteStoneCount, int highClassBlackStoneCount) {
+		return new SimpleImmutableEntry<>(name, new StoneClassScore(
+				new int[] {lowClassWhiteStoneCount, highClassWhiteStoneCount},
+				new int[] {lowClassBlackStoneCount, highClassBlackStoneCount}));
+	}
+
+	private static Arguments arguments(Player player, Entry<String, StoneClassScore> score1, Entry<String, StoneClassScore> score2, boolean result)
+	{
+		var name = switch (result) {
+			case true -> "For %s player %s %s should be better than %s %s";
+			case false -> "For %s player %s %s should NOT be better than %s %s";
+		};
+		return Arguments.argumentSet(name.formatted(player, score1.getKey(), score1.getValue(), score2.getKey(), score2.getValue()),
+				player, score1.getValue(), score2.getValue(), result);
+	}
+
+	/** The First score is better for white and transitivity and symmetry apply. */
+	private static Stream<Arguments> arguments(Entry<String, StoneClassScore> score1, Entry<String, StoneClassScore> score2) {
+		return arguments(score1, score2, true, false, false, true);
+	}
+
+	private static Stream<Arguments> arguments(Entry<String, StoneClassScore> score1, Entry<String, StoneClassScore> score2,
+											   boolean score1betterForWhite, boolean score1betterForBlack,
+											   boolean score2betterForWhite, boolean score2betterForBlack)
+	{
+		return Stream.of(
+				arguments(Player.WHITE, score1, score2, score1betterForWhite),
+				arguments(Player.BLACK, score1, score2, score1betterForBlack),
+				arguments(Player.WHITE, score2, score1, score2betterForWhite),
+				arguments(Player.BLACK, score2, score1, score2betterForBlack)
+		);
+	}
+
+	private static Stream<Arguments> unequalScores() {
+		var goodForWhite = score("good for white", 1, 3, 2, 1);
+		var goodForBlack = score("good for black", 2, 1, 1, 2);
+		var betterForWhite = score("better for white", 1, 2, 2, 1);
+		var littleMoreHighClassStones = score("little better for white in high class stones", 0, 1, 3, 1);
+		var wayMoreLowClassStones = score("way more better for white in low class stones", 0, 4, 2, 1);
+		var moreLowClassStones = score("", 2, 1, 2, 1);
+		var fewerLowClassStones = score("", 2, 2, 3, 2);
+		return Stream.of(
+				arguments(score(2, 1), score(1, 2)),
+				arguments(score(2, 1), score(1, 1)),
+				arguments(score(1, 2, 2, 1),
+						score(2, 1, 1, 2)),
+				// Winning vs.loosing is easy to decide (higher class of stones decides)
+				arguments(goodForWhite, goodForBlack, true, false, false, true),
+				// Winning by little vs. winning by far is also easy
+				arguments(goodForWhite, betterForWhite, false, true, true, false),
+				// Having little more high class stones is still better even if opponent has (way) more stones of lower class
+				arguments(littleMoreHighClassStones, wayMoreLowClassStones, true, false, false, true),
+				// What is better - having 3 vs. 2 high class stones or 2 vs. 1 high class stone?
+				// Both is +1 difference => look at lower class of stones to decide
+				arguments(moreLowClassStones, fewerLowClassStones, true, false, false, true)
+		).flatMap(Function.identity());
+	}
+
+	private static Stream<Arguments> scoresWithEqualDifferences() {
+		var winningWithLessStones = score("2:4, 2:1", 2, 4, 2, 1);
+		var winningWithMoreStones = score("1:3, 3:2", 1, 3, 3, 2);
+		var loosingWithLessStones = score("2:4, 1:2", 2, 4, 1, 2);
+		var loosingWithMoreStones = score("1:3, 2:3", 1, 3, 2, 3);
+		// These are more tricky to decide ...
+		return Stream.of(
+				// With 2 scores that both have +1 high-class stones and -2 low-class stones ...
+				// Do not try to get more stones if opponent gains as well => fewer stones ~ faster win
+				arguments(winningWithLessStones, winningWithMoreStones, true, false, false, true),
+				// However, if loosing use different approach => more stones ~ slower defeat
+				// In other words - give opponent chance to make mistake
+				arguments(loosingWithLessStones, loosingWithMoreStones, false, true, true, false)
+		).flatMap(Function.identity());
+	}
+
+	private static Stream<Arguments> scoresWithZeroDifferences() {
+		return Stream.of(
+
+		);//.flatMap(Function.identity());
+	}
+
+	private static Stream<Arguments> terminalScores() {
+		return Stream.of(
+
+		);//.flatMap(Function.identity());
+	}
+
+	@ParameterizedTest
+	@MethodSource
+	void unequalScores(Player player, StoneClassScore score1, StoneClassScore score2, boolean expectedResult) {
+		assertThat(score1.isBetterThan(score2, player)).isEqualTo(expectedResult);
+	}
+
+	@ParameterizedTest
+	@MethodSource
+	void scoresWithEqualDifferences(Player player, StoneClassScore score1, StoneClassScore score2, boolean expectedResult) {
+		assertThat(score1.isBetterThan(score2, player)).isEqualTo(expectedResult);
+	}
+
+}

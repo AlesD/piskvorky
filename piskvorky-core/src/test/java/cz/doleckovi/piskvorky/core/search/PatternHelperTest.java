@@ -1,23 +1,12 @@
 package cz.doleckovi.piskvorky.core.search;
 
+import cz.doleckovi.piskvorky.api.board.Stone;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PatternHelperTest {
-
-	@Test
-	void bitCount() {
-		assertThat(PatternHelper.bitCount(0b000)).isEqualTo(0);
-		assertThat(PatternHelper.bitCount(0b001)).isEqualTo(1);
-		assertThat(PatternHelper.bitCount(0b010)).isEqualTo(1);
-		assertThat(PatternHelper.bitCount(0b100)).isEqualTo(1);
-		assertThat(PatternHelper.bitCount(0b011)).isEqualTo(2);
-		assertThat(PatternHelper.bitCount(0b101)).isEqualTo(2);
-		assertThat(PatternHelper.bitCount(0b110)).isEqualTo(2);
-		assertThat(PatternHelper.bitCount(0b111)).isEqualTo(3);
-	}
 
 	@Test
 	void bits() {
@@ -42,17 +31,21 @@ public class PatternHelperTest {
 		var defaultValues = PatternHelper.defaultPatterns();
 		assertThat(defaultValues[PatternHelper.bits("XOOOOO")].classes)
 				.hasSize(5)
-				.containsOnly(StoneClass.FIVE_IN_ROW)
-				.isSameAs(defaultValues[PatternHelper.bits("-OOOOO")]);
+				.containsOnly(StoneClass.FIVE)
+				.isSameAs(defaultValues[PatternHelper.bits("-OOOOO")].classes);
 		assertThat(defaultValues[PatternHelper.bits("X-OO--")].classes)
 				.containsExactly(StoneClass.THREE, StoneClass.TWO, StoneClass.TWO, StoneClass.THREE, StoneClass.THREE)
-				.isSameAs(defaultValues[PatternHelper.bits("--OO--")]);
+				.isSameAs(defaultValues[PatternHelper.bits("--OO--")].classes);
+		for (int index = 0; index < defaultValues.length; ++index)
+			assertThat(defaultValues[index].bits).isEqualTo(index);
 	}
 
 	@Test
 	void toString_() {
-		assertThat(PatternHelper.toString(0b110000)).isEqualTo("⚫⚪····");
-		assertThat(PatternHelper.toString(0b100001)).isEqualTo("⚫····⚪");
+		assertThat(PatternHelper.toString(0b110000))
+				.isEqualTo(new StringBuilder().append(Stone.BLACK).append(Stone.WHITE).repeat(Stone.EMPTY.toString(), 4).toString());
+		assertThat(PatternHelper.toString(0b000001))
+				.isEqualTo(new StringBuilder().repeat(Stone.EMPTY.toString(),5).append(Stone.WHITE).toString());
 	}
 
 }

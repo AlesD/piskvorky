@@ -12,4 +12,8 @@ public record Field(Stone stone) {
 		return new Field(stone);
 	}
 
+	@Override
+	public String toString() {
+		return stone.toString();
+	}
 }
