@@ -1,5 +1,6 @@
 package cz.doleckovi.piskvorky.core.search;
 
+import cz.doleckovi.piskvorky.api.Piskvorky;
 import cz.doleckovi.piskvorky.api.search.Evaluator;
 import cz.doleckovi.piskvorky.core.board.Line;
 import cz.doleckovi.piskvorky.core.board.PositionImpl;
@@ -11,6 +12,8 @@ import java.util.function.Function;
 import static cz.doleckovi.piskvorky.core.search.Pattern.OPPONENT_MASK;
 import static cz.doleckovi.piskvorky.core.search.Pattern.PLAYER_MASK;
 
+import static cz.doleckovi.piskvorky.core.search.PatternHelper.bitCount;
+
 class EvaluatorImpl implements Evaluator<PositionImpl, StoneClassScore> {
 
 	// TODO For fields with WHITE stone (or BLOCK) blacks contain NONE (and vice versa)
@@ -20,10 +23,18 @@ class EvaluatorImpl implements Evaluator<PositionImpl, StoneClassScore> {
 
 	public static final EvaluatorImpl DEFAULT = new EvaluatorImpl(PatternHelper.defaultPatterns());
 
+    private static int PLAYER_MASK = (1 << Piskvorky.SIZE) - 1;
+
+    private final int patternLength;
+    private final int opponentMask;
 	private final Pattern[] patterns;
 
 	EvaluatorImpl(Pattern[] patterns) {
-		this.patterns = patterns;
+        assert bitCount(patterns.length) == 1 : "Number of patterns is not power of 2";
+        patternLength = bitCount(patterns.length - 1);
+        assert patternLength >= Piskvorky.SIZE : "Not enough patterns";
+        opponentMask = ((1 << patternLength) - 1) ^ PLAYER_MASK;
+        this.patterns = patterns;
 	}
 
 	@Override
@@ -46,19 +57,21 @@ class EvaluatorImpl implements Evaluator<PositionImpl, StoneClassScore> {
 
 	LineEvaluation evaluate(Line line) {
 		var length = line.length();
-		assert length >= Pattern.LENGTH;
+		assert length >= Piskvorky.SIZE : "Line is too short";
 		var whiteClasses = new StoneClass[length];
 		var blackClasses = new StoneClass[length];
-		// Setting both white and black stone makes the pattern INVALID
-		var whiteBits = 1;
-		var blackBits = 1;
+		// Setting all bits are set to 1
+		var whiteBits = ~0;
+		var blackBits = ~0;
 		var readIndex = 0;
 		// Push enough stones to make a pattern
-		while (readIndex < Pattern.LENGTH) {
+		while (readIndex < patternLength) {
 			whiteBits <<= 1;
 			blackBits <<= 1;
 			switch (line.stone(readIndex++)) {
-				case WHITE: whiteBits |= 1; break;
+				case WHITE:
+    whiteBits |= 1;
+                    break;
 				case BLOCK: whiteBits |= 1; // Fall through
 				case BLACK: blackBits |= 1;
 			}

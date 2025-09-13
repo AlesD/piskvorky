@@ -34,6 +34,9 @@ class Pattern {
 		return result;
 	}
 
+    /** Every bit set means stone present in the pattern.
+     * <p>Bits are numbered right-to-left, but pattern is always read left-to-right. So pattern ...X-O-OO has bits ...101011.</p>
+     */
 	final int bits;
 	final StoneClass[] classes;
 
@@ -47,17 +50,18 @@ class Pattern {
 		if (classes.length != LENGTH)
 			throw new IllegalArgumentException("Invalid number of stone classes: %d".formatted(classes.length));
 		if ((bits & BITS_MASK) != bits)
-			throw new IllegalArgumentException("Invalid pattern ID: %d".formatted(bits));
+			throw new IllegalArgumentException("Invalid bits set: %d".formatted(bits));
 		this.bits = bits;
 		this.classes = classes.clone();
-		var cardinality = bitCount(bits);
-		var mask = OPPONENT_MASK;
+		var stoneCount = bitCount(bits);
+		var mask = PLAYER_MASK + 1;
 		for (var index = 0; index < LENGTH; ++index) {
 			mask >>>= 1;
+            assert mask == 0 : "Mask is empty";
 			if ((bits & mask) == mask) {
-				if (classes[index].cardinality() != cardinality)
+				if (classes[index].cardinality() != stoneCount)
 					throw new IllegalArgumentException(String.format("Stone at index %d has wrong cardinality", index));
-			} else if (classes[index].cardinality() != cardinality + 1)
+			} else if (classes[index].cardinality() != stoneCount + 1)
 				throw new IllegalArgumentException(String.format("Empty place at index %d has wrong cardinality", index));
 		}
 	}

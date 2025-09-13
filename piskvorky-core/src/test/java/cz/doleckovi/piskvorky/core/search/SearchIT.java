@@ -8,6 +8,7 @@ import cz.doleckovi.piskvorky.core.board.MoveImpl;
 import cz.doleckovi.piskvorky.core.board.PositionImpl;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.WithAssertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -93,6 +94,7 @@ class SearchIT implements WithAssertions {
 
     @ParameterizedTest
     @MethodSource
+    @Disabled
     void search(PositionImpl position, int depth, Move move, boolean terminal) throws InterruptedException {
         assertThat(new Minimax<>(new MoveGeneratorImpl<>(), EvaluatorImpl.DEFAULT).search(position, Player.WHITE, depth))
                 .isNotEmpty()

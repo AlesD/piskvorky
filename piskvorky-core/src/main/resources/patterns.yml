@@ -1,0 +1,50 @@
+- name: EMPTY
+  variants:
+    - -----
+- name: ONE
+  variants:
+    - ----O
+    - ---O-
+    - --O--
+    - -O---
+    - O----
+- name: TWO
+  variants:
+    - ---OO
+    - --O-O
+    - --OO-
+    - -O-O-
+    - -OO--
+    - O-O--
+    - OO---
+- name: THREE
+  variants:
+    - --OOO
+    - -O-OO
+    - -OO-O
+    - -OOO-
+    - O-OO-
+    - OO-O-
+    - OOO--
+- name: OPEN_THREE
+  variants:
+    - --OOO-
+    - -O-OO-
+    - -OO-O-
+    - -OOO--
+- name: FOUR
+  non-quiet: true
+  variants:
+    - -OOOO
+    - O-OOO
+    - OO-OO
+    - OOO-O
+    - OOOO-
+- name: OPEN_FOUR
+  non-quiet: true
+  variants:
+    - -OOOO-
+- name: FIVE
+  terminal: true
+  variants:
+    - OOOOO

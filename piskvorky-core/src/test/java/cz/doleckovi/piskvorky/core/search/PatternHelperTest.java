@@ -36,8 +36,11 @@ public class PatternHelperTest {
 		assertThat(defaultValues[PatternHelper.bits("X-OO--")].classes)
 				.containsExactly(StoneClass.THREE, StoneClass.TWO, StoneClass.TWO, StoneClass.THREE, StoneClass.THREE)
 				.isSameAs(defaultValues[PatternHelper.bits("--OO--")].classes);
-		for (int index = 0; index < defaultValues.length; ++index)
-			assertThat(defaultValues[index].bits).isEqualTo(index);
+        assertThat(defaultValues[PatternHelper.bits("--OO--")].classes)
+                .containsExactly(StoneClass.THREE, StoneClass.TWO, StoneClass.TWO, StoneClass.OPEN_THREE,  StoneClass.THREE);
+		for (int index = 0; index < defaultValues.length; ++index) {
+            assertThat(defaultValues[index].bits).isEqualTo(index);
+        }
 	}
 
 	@Test
