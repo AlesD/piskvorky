@@ -1,13 +1,13 @@
 package cz.doleckovi.piskvorky.core.search;
 
-import cz.doleckovi.piskvorky.api.Piskvorky;
+import cz.doleckovi.piskvorky.api.Constants;
 
 import java.util.Arrays;
 
 class Pattern {
 
 	/** Number of player stones that make pattern. */
-	public static final int LENGTH = Piskvorky.SIZE;
+	public static final int LENGTH = Constants.SIZE;
 	/** Number of all possible patterns.
 	 * <p>Number of combinations of stones ×2 - once if extra opponent stone is empty and once if it is present.</p>
 	 */

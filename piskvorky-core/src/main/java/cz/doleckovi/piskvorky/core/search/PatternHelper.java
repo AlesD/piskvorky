@@ -13,7 +13,7 @@ public class PatternHelper {
 
     record PatternClassConfiguration(
             String name,
-            boolean terminal
+            boolean terminal,
             boolean searchExtension,
             List<String> variants
     ) {}

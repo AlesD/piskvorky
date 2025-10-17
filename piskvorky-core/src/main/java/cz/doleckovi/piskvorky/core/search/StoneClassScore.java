@@ -1,7 +1,7 @@
 package cz.doleckovi.piskvorky.core.search;
 
-import cz.doleckovi.piskvorky.api.search.Player;
-import cz.doleckovi.piskvorky.api.search.Score;
+import cz.doleckovi.piskvorky.api.board.Side;
+import cz.doleckovi.piskvorky.api.evaluation.Score;
 
 import java.util.StringJoiner;
 
@@ -43,7 +43,7 @@ class StoneClassScore implements Score<StoneClassScore> {
 	}
 
 	@Override
-	public boolean isBetterThan(StoneClassScore other, Player player) {
+	public boolean isBetterThan(StoneClassScore other, Side side) {
 		assert diff.length == other.diff.length;
 		if (terminal ^ other.terminal) return terminal;
 		int firstNonZeroDiff = 0;
@@ -51,7 +51,7 @@ class StoneClassScore implements Score<StoneClassScore> {
 		int index = diff.length;
 		while (--index != 0) {
 			int result = diff[index] - other.diff[index];
-			if (result != 0) return switch (player) {
+			if (result != 0) return switch (side) {
 				case WHITE -> result > 0;
 				case BLACK -> result < 0;
 			};
@@ -64,7 +64,7 @@ class StoneClassScore implements Score<StoneClassScore> {
 		index = diff.length;
 		while (--index >= 0) {
 			int result = sum[index] - other.sum[index];
-			if (result != 0) return switch (player) {
+			if (result != 0) return switch (side) {
 				case WHITE -> firstNonZeroDiff < 0;
 				case BLACK -> firstNonZeroDiff > 0;
 			} /* player is loosing */ ? result > 0 /* this has more stones */ : result < 0 /* other has more stones */;
@@ -73,8 +73,8 @@ class StoneClassScore implements Score<StoneClassScore> {
 	}
 
 	@Override
-	public StoneClassScore betterOf(StoneClassScore other, Player player) {
-		return other == null || isBetterThan(other, player) ? self() : other;
+	public StoneClassScore betterOf(StoneClassScore other, Side side) {
+		return other == null || isBetterThan(other, side) ? self() : other;
 	}
 
 	int white(StoneClass stoneClass) {
@@ -90,23 +90,23 @@ class StoneClassScore implements Score<StoneClassScore> {
 	@Override
 	public String toString() {
 		var result = new StringJoiner(", ", "[", "]");
-		Player winningPlayer = null;
+		Side winningSide = null;
 		int index = diff.length;
 		while (--index != 0) {
 			if (diff[index] != 0) {
-				winningPlayer = diff[index] > 0 ? Player.WHITE : Player.BLACK;
+				winningSide = diff[index] > 0 ? Side.WHITE : Side.BLACK;
 				break;
 			}
 			if (sum[index] > 0)
 				result.add(new StringBuilder().append(StoneClass.values()[index]).append(':').append(sum[index]));
 		}
-		if (winningPlayer != null) {
-			result = new StringJoiner(", ", winningPlayer.stone.toString() + '[', "]");
+		if (winningSide != null) {
+			result = new StringJoiner(", ", winningSide.stone.toString() + '[', "]");
 			index = diff.length;
 			while (--index >= 0) {
 				if (sum[index] > 0) {
 					var segment = new StringBuilder().append(StoneClass.values()[index]).append(':').append(sum[index]);
-					var winnerDiff = switch (winningPlayer) {
+					var winnerDiff = switch (winningSide) {
 						case WHITE -> diff[index];
 						case BLACK -> -diff[index];
 					};

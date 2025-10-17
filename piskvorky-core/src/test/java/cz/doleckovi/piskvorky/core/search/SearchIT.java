@@ -2,7 +2,7 @@ package cz.doleckovi.piskvorky.core.search;
 
 import cz.doleckovi.piskvorky.api.board.Stone;
 import cz.doleckovi.piskvorky.api.search.Move;
-import cz.doleckovi.piskvorky.api.search.Player;
+import cz.doleckovi.piskvorky.api.board.Side;
 import cz.doleckovi.piskvorky.core.board.BoardImpl;
 import cz.doleckovi.piskvorky.core.board.MoveImpl;
 import cz.doleckovi.piskvorky.core.board.PositionImpl;
@@ -84,7 +84,7 @@ class SearchIT implements WithAssertions {
                 var column = Integer.parseInt(solution.group("column"));
                 var row = Integer.parseInt(solution.group("row"));
                 var terminal = solution.group("terminal").equals("!");
-                var move = new MoveImpl(Player.WHITE, column, row);
+                var move = new MoveImpl(Side.WHITE, column, row);
                 result.add(Arguments.argumentSet("Position %d".formatted(result.size() + 1),
                         position, depth, move, terminal));
             }
@@ -96,7 +96,7 @@ class SearchIT implements WithAssertions {
     @MethodSource
     @Disabled
     void search(PositionImpl position, int depth, Move move, boolean terminal) throws InterruptedException {
-        assertThat(new Minimax<>(new MoveGeneratorImpl<>(), EvaluatorImpl.DEFAULT).search(position, Player.WHITE, depth))
+        assertThat(new Minimax<>(new MoveGeneratorImpl<>(), EvaluatorImpl.DEFAULT).search(position, Side.WHITE, depth))
                 .isNotEmpty()
                 .contains(move);
     }

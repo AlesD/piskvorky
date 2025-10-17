@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
-  <component name="SonarLintModuleSettings">
-    <option name="uniqueId" value="1589ceec-232f-48eb-9422-54b187dc5f7f" />
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$" dumb="true">
+      <excludeFolder url="file://$MODULE_DIR$/src/main/java/cz/doleckovi/piskvorky/core/board" />
+      <excludeFolder url="file://$MODULE_DIR$/src/main/java/cz/doleckovi/piskvorky/core/search" />
+      <excludeFolder url="file://$MODULE_DIR$/src/test/java/cz/doleckovi/piskvorky/core/board" />
+      <excludeFolder url="file://$MODULE_DIR$/src/test/java/cz/doleckovi/piskvorky/core/search" />
+    </content>
   </component>
 </module>

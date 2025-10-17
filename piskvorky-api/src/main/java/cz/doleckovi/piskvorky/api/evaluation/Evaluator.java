@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.api.search;
+package cz.doleckovi.piskvorky.api.evaluation;
 
 import cz.doleckovi.piskvorky.api.board.Position;
 
@@ -10,9 +10,9 @@ import cz.doleckovi.piskvorky.api.board.Position;
 public interface Evaluator<P extends Position<P>, S extends Score<S>> {
 
 	/** Evaluate position.
-	 * <p>Equal positions must produce equal scores.</p>
+	 * <p>Equal positions must produce same evaluation.</p>
 	 * @param position Position to evaluate
-	 * @return Score for given position
+	 * @return Position score
 	 */
 	S evaluate(P position);
 

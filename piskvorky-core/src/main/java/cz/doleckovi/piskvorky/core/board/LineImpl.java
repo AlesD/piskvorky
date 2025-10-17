@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import cz.doleckovi.piskvorky.api.Piskvorky;
+import cz.doleckovi.piskvorky.api.Constants;
 import cz.doleckovi.piskvorky.api.board.Stone;
 
 import java.util.Arrays;
@@ -15,7 +15,7 @@ class LineImpl implements Line {
 			++count;
 		while (--offset >= 0 && stones[offset] == stone)
 			++count;
-		return count >= Piskvorky.SIZE;
+		return count >= Constants.SIZE;
 	}
 
 	private final Stone[] stones;
@@ -27,7 +27,7 @@ class LineImpl implements Line {
 	}
 
 	public LineImpl(int length) {
-		assert length >= Piskvorky.SIZE;
+		assert length >= Constants.SIZE;
 		stones = new Stone[length];
 		Arrays.fill(stones, Stone.EMPTY);
 		terminal = false;

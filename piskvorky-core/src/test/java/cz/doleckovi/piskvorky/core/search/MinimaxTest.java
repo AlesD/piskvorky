@@ -1,11 +1,10 @@
 package cz.doleckovi.piskvorky.core.search;
 
-import cz.doleckovi.piskvorky.api.search.Player;
+import cz.doleckovi.piskvorky.api.evaluation.Evaluator;
+import cz.doleckovi.piskvorky.api.evaluation.Score;
+import cz.doleckovi.piskvorky.api.search.*;
+import cz.doleckovi.piskvorky.api.board.Side;
 import cz.doleckovi.piskvorky.api.board.Position;
-import cz.doleckovi.piskvorky.api.search.Evaluator;
-import cz.doleckovi.piskvorky.api.search.Score;
-import cz.doleckovi.piskvorky.api.search.Move;
-import cz.doleckovi.piskvorky.api.search.MoveGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +22,8 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 
 	@Mock P position;
 	@Mock MoveGenerator<P> moveGenerator;
-	@Mock Evaluator<P, S> evaluator;
+	@Mock
+	Evaluator<P, S> evaluator;
 	@Mock TranspositionTable<P, S> transpositionTable;
 	@InjectMocks
 	MinimaxWithPruningAndTranspositionTable<P, S> minimax;
@@ -81,7 +81,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 		assertThat(minimax.maximize(position, 1, null,null))
 				.isSameAs(score);
 
-		verify(moveGenerator).generateMoves(position, Player.BLACK);
+		verify(moveGenerator).generateMoves(position, Side.BLACK);
 		verify(transpositionTable).store(position, 1, score, EntryType.EXACT);
 	}
 
@@ -91,7 +91,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 	{
 		when(transpositionTable.lookup(position, 1))
 				.thenReturn(new TranspositionTableEntry<>(lowerBound, EntryType.LOWER_BOUND));
-		when(upperBound.isBetterThan(lowerBound, Player.BLACK))
+		when(upperBound.isBetterThan(lowerBound, Side.BLACK))
 				.thenReturn(true); // Lower bound is same as upper bound
 
 		// Black can force other position with upperBound score
@@ -111,7 +111,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 	{
 		when(transpositionTable.lookup(position, 1))
 				.thenReturn(new TranspositionTableEntry<>(lowerBound, EntryType.LOWER_BOUND));
-		when(lowerBound.isBetterThan(upperBound, Player.WHITE))
+		when(lowerBound.isBetterThan(upperBound, Side.WHITE))
 				.thenReturn(false); // Lower bound is less/better than upper bound
 		when(evaluator.evaluate(position))
 				.thenReturn(score);
@@ -120,7 +120,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 		assertThat(minimax.maximize(position, 1, null, upperBound))
 				.isSameAs(score);
 
-		verify(moveGenerator).generateMoves(position, Player.BLACK);
+		verify(moveGenerator).generateMoves(position, Side.BLACK);
 		verify(transpositionTable).store(position, 1, score, EntryType.EXACT);
 	}
 
@@ -151,7 +151,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 		assertThat(minimax.minimize(position, 1, null,null))
 				.isSameAs(score);
 
-		verify(moveGenerator).generateMoves(position, Player.WHITE);
+		verify(moveGenerator).generateMoves(position, Side.WHITE);
 		verify(transpositionTable).store(position, 1, score, EntryType.EXACT);
 	}
 
@@ -161,7 +161,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 	{
 		when(transpositionTable.lookup(position, 1))
 				.thenReturn(new TranspositionTableEntry<>(upperBound, EntryType.UPPER_BOUND));
-		when(upperBound.isBetterThan(lowerBound, Player.WHITE))
+		when(upperBound.isBetterThan(lowerBound, Side.WHITE))
 				.thenReturn(false); // Upper bound is same as lower bound
 
 		// White can force other position with whiteBest score
@@ -183,7 +183,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 	{
 		when(transpositionTable.lookup(position, 1))
 				.thenReturn(new TranspositionTableEntry<>(upperBound, EntryType.UPPER_BOUND));
-		when(upperBound.isBetterThan(lowerBound, Player.WHITE))
+		when(upperBound.isBetterThan(lowerBound, Side.WHITE))
 				.thenReturn(true); // Upper bound is more/better than lower bound
 		when(evaluator.evaluate(position))
 				.thenReturn(score);
@@ -192,7 +192,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 		assertThat(minimax.minimize(position, 1, lowerBound, null))
 				.isSameAs(score);
 
-		verify(moveGenerator).generateMoves(position, Player.WHITE);
+		verify(moveGenerator).generateMoves(position, Side.WHITE);
 		verify(transpositionTable).store(position, 1, score, EntryType.EXACT);
 	}
 
@@ -228,7 +228,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 		assertThat(minimax.maximize(position, 1, null, null))
 				.isSameAs(score);
 
-		verify(moveGenerator).generateMoves(position, Player.BLACK);
+		verify(moveGenerator).generateMoves(position, Side.BLACK);
 		verify(transpositionTable).store(position, 1, score, EntryType.EXACT);
 	}
 
@@ -240,7 +240,7 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 		assertThat(minimax.minimize(position, 1, null, null))
 				.isSameAs(score);
 
-		verify(moveGenerator).generateMoves(position, Player.WHITE);
+		verify(moveGenerator).generateMoves(position, Side.WHITE);
 		verify(transpositionTable).store(position, 1, score, EntryType.EXACT);
 	}
 
@@ -248,15 +248,15 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 	void cutoffOnFirstMoveInMaximize(@Mock Move move1, @Mock Move move2, @Mock P position1, @Mock S currentMax,
 			@Mock S upperBound, @Mock S score) throws InterruptedException
 	{
-		when(moveGenerator.generateMoves(position, Player.BLACK))
+		when(moveGenerator.generateMoves(position, Side.BLACK))
 				.thenReturn(List.of(move1, move2));
 		when(position.afterMove(move1))
 				.thenReturn(position1);
 		when(evaluator.evaluate(position1))
 				.thenReturn(score);
-		when(score.isBetterThan(currentMax, Player.WHITE))
+		when(score.isBetterThan(currentMax, Side.WHITE))
 				.thenReturn(false);
-		when(score.isBetterThan(upperBound, Player.WHITE))
+		when(score.isBetterThan(upperBound, Side.WHITE))
 				.thenReturn(true); // cutoff
 
 		assertThat(minimax.maximize(position, 1, currentMax, upperBound))
@@ -270,15 +270,15 @@ class MinimaxTest<P extends Position<P>, S extends Score<S>> {
 	void cutoffOnFirstMoveInMinimize(@Mock Move move1, @Mock Move move2, @Mock P position1, @Mock S currentMin,
 			@Mock S lowerBound, @Mock S score) throws InterruptedException
 	{
-		when(moveGenerator.generateMoves(position, Player.WHITE))
+		when(moveGenerator.generateMoves(position, Side.WHITE))
 				.thenReturn(List.of(move1, move2));
 		when(position.afterMove(move1))
 				.thenReturn(position1);
 		when(evaluator.evaluate(position1))
 				.thenReturn(score);
-		when(score.isBetterThan(currentMin, Player.BLACK))
+		when(score.isBetterThan(currentMin, Side.BLACK))
 				.thenReturn(false);
-		when(score.isBetterThan(lowerBound, Player.BLACK))
+		when(score.isBetterThan(lowerBound, Side.BLACK))
 				.thenReturn(true); // cutoff
 
 		assertThat(minimax.minimize(position, 1, lowerBound, currentMin))

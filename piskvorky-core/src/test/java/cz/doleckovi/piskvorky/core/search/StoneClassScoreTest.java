@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.core.search;
 
-import cz.doleckovi.piskvorky.api.search.Player;
+import cz.doleckovi.piskvorky.api.board.Side;
 import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -34,14 +34,14 @@ class StoneClassScoreTest implements WithAssertions {
 				new int[] {lowClassBlackStoneCount, highClassBlackStoneCount}));
 	}
 
-	private static Arguments arguments(Player player, Entry<String, StoneClassScore> score1, Entry<String, StoneClassScore> score2, boolean result)
+	private static Arguments arguments(Side side, Entry<String, StoneClassScore> score1, Entry<String, StoneClassScore> score2, boolean result)
 	{
 		var name = switch (result) {
 			case true -> "For %s player %s %s should be better than %s %s";
 			case false -> "For %s player %s %s should NOT be better than %s %s";
 		};
-		return Arguments.argumentSet(name.formatted(player, score1.getKey(), score1.getValue(), score2.getKey(), score2.getValue()),
-				player, score1.getValue(), score2.getValue(), result);
+		return Arguments.argumentSet(name.formatted(side, score1.getKey(), score1.getValue(), score2.getKey(), score2.getValue()),
+				side, score1.getValue(), score2.getValue(), result);
 	}
 
 	/** The First score is better for white and transitivity and symmetry apply. */
@@ -54,10 +54,10 @@ class StoneClassScoreTest implements WithAssertions {
 											   boolean score2betterForWhite, boolean score2betterForBlack)
 	{
 		return Stream.of(
-				arguments(Player.WHITE, score1, score2, score1betterForWhite),
-				arguments(Player.BLACK, score1, score2, score1betterForBlack),
-				arguments(Player.WHITE, score2, score1, score2betterForWhite),
-				arguments(Player.BLACK, score2, score1, score2betterForBlack)
+				arguments(Side.WHITE, score1, score2, score1betterForWhite),
+				arguments(Side.BLACK, score1, score2, score1betterForBlack),
+				arguments(Side.WHITE, score2, score1, score2betterForWhite),
+				arguments(Side.BLACK, score2, score1, score2betterForBlack)
 		);
 	}
 
@@ -116,14 +116,14 @@ class StoneClassScoreTest implements WithAssertions {
 
 	@ParameterizedTest
 	@MethodSource
-	void unequalScores(Player player, StoneClassScore score1, StoneClassScore score2, boolean expectedResult) {
-		assertThat(score1.isBetterThan(score2, player)).isEqualTo(expectedResult);
+	void unequalScores(Side side, StoneClassScore score1, StoneClassScore score2, boolean expectedResult) {
+		assertThat(score1.isBetterThan(score2, side)).isEqualTo(expectedResult);
 	}
 
 	@ParameterizedTest
 	@MethodSource
-	void scoresWithEqualDifferences(Player player, StoneClassScore score1, StoneClassScore score2, boolean expectedResult) {
-		assertThat(score1.isBetterThan(score2, player)).isEqualTo(expectedResult);
+	void scoresWithEqualDifferences(Side side, StoneClassScore score1, StoneClassScore score2, boolean expectedResult) {
+		assertThat(score1.isBetterThan(score2, side)).isEqualTo(expectedResult);
 	}
 
 }

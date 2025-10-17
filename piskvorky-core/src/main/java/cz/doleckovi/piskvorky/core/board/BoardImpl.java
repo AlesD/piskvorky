@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import cz.doleckovi.piskvorky.api.Piskvorky;
+import cz.doleckovi.piskvorky.api.Constants;
 import cz.doleckovi.piskvorky.api.board.Board;
 
 import java.util.*;
@@ -47,7 +47,7 @@ public class BoardImpl implements Board<PositionImpl> {
 	}
 
 	static List<FieldDescriptor> generateFieldDescriptors(int size, List<FieldAddress> fieldAddresses) {
-		var diagonalCount = 2 * (size - Piskvorky.SIZE) + 1;
+		var diagonalCount = 2 * (size - Constants.SIZE) + 1;
 		var mainDiagonalOffset = diagonalCount / 2;
 		var firstDownhillLineIndex = size + size;
 		var firstUphillLineIndex = firstDownhillLineIndex + diagonalCount;
@@ -72,7 +72,7 @@ public class BoardImpl implements Board<PositionImpl> {
 				length = size - diagonalIndexOffset;
 				offset = column;
 			}
-			if (length >= Piskvorky.SIZE) {
+			if (length >= Constants.SIZE) {
 				var lineIndex = mainDownhillDiagonalIndex + diagonalIndexOffset;
 				lineAddresses.put(Direction.DOWNHILL, new LineAddress(lineIndex, offset, fieldAddress));
 			}
@@ -86,7 +86,7 @@ public class BoardImpl implements Board<PositionImpl> {
 				length = size - diagonalIndexOffset;
 				offset = invertedRow;
 			}
-			if (length >= Piskvorky.SIZE) {
+			if (length >= Constants.SIZE) {
 				var lineIndex = mainUphillDiagonalIndex + diagonalIndexOffset;
 				lineAddresses.put(Direction.UPHILL, new LineAddress(lineIndex, offset, fieldAddress));
 			}
@@ -97,7 +97,7 @@ public class BoardImpl implements Board<PositionImpl> {
 	}
 
 	static List<LineDescriptor> generateLineDescriptors(int size, List<FieldDescriptor> fieldDescriptors) {
-		var maxLineOffset = new int[6 * size - 4 * Piskvorky.SIZE + 2];
+		var maxLineOffset = new int[6 * size - 4 * Constants.SIZE + 2];
 		Arrays.fill(maxLineOffset, -1);
 		var directions = new Direction[maxLineOffset.length];
 		for (var fieldDescriptor : fieldDescriptors)
@@ -134,8 +134,8 @@ public class BoardImpl implements Board<PositionImpl> {
 	 * @param sideSize Board side size
 	 */
 	public BoardImpl(int sideSize) {
-		if (sideSize < Piskvorky.SIZE)
-			throw new IllegalArgumentException(String.format("Minimal side size of the board is %d", Piskvorky.SIZE));
+		if (sideSize < Constants.SIZE)
+			throw new IllegalArgumentException(String.format("Minimal side size of the board is %d", Constants.SIZE));
 
 		this.size = sideSize;
 		this.fieldDescriptors = generateFieldDescriptors(sideSize, generateFieldAddresses(sideSize));

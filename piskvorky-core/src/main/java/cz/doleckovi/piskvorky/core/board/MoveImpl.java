@@ -1,14 +1,14 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import cz.doleckovi.piskvorky.api.search.Player;
+import cz.doleckovi.piskvorky.api.board.Side;
 import cz.doleckovi.piskvorky.api.search.Move;
 
 import java.util.Objects;
 
-public record MoveImpl(Player player, int column, int row) implements Move {
+public record MoveImpl(Side side, int column, int row) implements Move {
 
-	public MoveImpl(Player player, int column, int row) {
-		this.player = Objects.requireNonNull(player);
+	public MoveImpl(Side side, int column, int row) {
+		this.side = Objects.requireNonNull(side);
 		this.column = column;
 		this.row = row;
 	}
@@ -17,13 +17,13 @@ public record MoveImpl(Player player, int column, int row) implements Move {
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) return false;
 		MoveImpl move = (MoveImpl) o;
-		return column == move.column && row == move.row && player == move.player;
+		return column == move.column && row == move.row && side == move.side;
 	}
 
 	@Override
 	public String toString() {
 		return new StringBuilder()
-				.append(player.stone)
+				.append(side.stone)
 				.append('[')
 				.append(column)
 				.append(',')

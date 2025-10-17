@@ -1,6 +1,9 @@
 package cz.doleckovi.piskvorky.core.search;
 
 import cz.doleckovi.piskvorky.api.board.Position;
+import cz.doleckovi.piskvorky.api.board.Side;
+import cz.doleckovi.piskvorky.api.evaluation.Evaluator;
+import cz.doleckovi.piskvorky.api.evaluation.Score;
 import cz.doleckovi.piskvorky.api.search.*;
 
 import java.util.Optional;
@@ -19,18 +22,18 @@ public class Minimax<P extends Position<P>, S extends Score<S>> implements Searc
 	}
 
 	@Override
-	public Optional<Move> search(P position, Player player, int depth)
+	public Optional<Move> search(P position, Side side, int depth)
 			throws IllegalArgumentException, InterruptedException
 	{
 		if (--depth < 0)
 			throw new IllegalArgumentException("Zero or negative depth");
-		var moves = moveGenerator.generateMoves(position, player).iterator();
+		var moves = moveGenerator.generateMoves(position, side).iterator();
 		Move bestMove = null;
 		S bestScore = null;
 		while (moves.hasNext()) {
 			var move = moves.next();
 			System.out.printf("Move %s:", move.toString());
-			S score = search(position.afterMove(move), depth, player.opponent()).betterOf(bestScore, player);
+			S score = search(position.afterMove(move), depth, side.opposite()).betterOf(bestScore, side);
 			System.out.println(score);
 			if (score != bestScore) {
 				bestScore = score;
@@ -40,7 +43,7 @@ public class Minimax<P extends Position<P>, S extends Score<S>> implements Searc
 		return Optional.ofNullable(bestMove);
 	}
 
-	S search(P position, int depth, Player player) throws InterruptedException {
+	S search(P position, int depth, Side side) throws InterruptedException {
 		if (Thread.interrupted())
 			throw new InterruptedException();
 		if (position.isTerminal()) {
@@ -50,12 +53,12 @@ public class Minimax<P extends Position<P>, S extends Score<S>> implements Searc
 		}
 		if (--depth < 0)
 			return evaluator.evaluate(position);
-		var moves = moveGenerator.generateMoves(position, player).iterator();
+		var moves = moveGenerator.generateMoves(position, side).iterator();
 		if (!moves.hasNext())
 			return evaluator.evaluate(position);
 		S result = null;
 		do {
-			result = search(position.afterMove(moves.next()), depth, player.opponent()).betterOf(result, player);
+			result = search(position.afterMove(moves.next()), depth, side.opposite()).betterOf(result, side);
 		} while (moves.hasNext());
 		return result;
 	}

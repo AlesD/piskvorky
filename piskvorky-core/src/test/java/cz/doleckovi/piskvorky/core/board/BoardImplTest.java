@@ -1,7 +1,6 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import cz.doleckovi.piskvorky.api.Piskvorky;
-import cz.doleckovi.piskvorky.core.search.StoneClass;
+import cz.doleckovi.piskvorky.api.Constants;
 import org.assertj.core.api.Condition;
 import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Test;
@@ -34,7 +33,7 @@ class BoardImplTest implements WithAssertions {
 				.haveExactly(2 * size - 9, DOWNHILL_LINES)
 				.haveExactly(2 * size - 9, UPHILL_LINES);
 		for (int length = 1; length < size; ++length)
-			if (length < Piskvorky.SIZE)
+			if (length < Constants.SIZE)
 				assertThat(lineDescriptors)
 						.filteredOn(LineDescriptor::length, length)
 						.isEmpty();

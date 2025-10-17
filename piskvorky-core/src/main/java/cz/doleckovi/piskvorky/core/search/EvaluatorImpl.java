@@ -1,16 +1,14 @@
 package cz.doleckovi.piskvorky.core.search;
 
-import cz.doleckovi.piskvorky.api.Piskvorky;
-import cz.doleckovi.piskvorky.api.search.Evaluator;
+import cz.doleckovi.piskvorky.api.Constants;
+import cz.doleckovi.piskvorky.api.evaluation.Evaluator;
 import cz.doleckovi.piskvorky.core.board.Line;
 import cz.doleckovi.piskvorky.core.board.PositionImpl;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Function;
 
 import static cz.doleckovi.piskvorky.core.search.Pattern.OPPONENT_MASK;
-import static cz.doleckovi.piskvorky.core.search.Pattern.PLAYER_MASK;
 
 import static cz.doleckovi.piskvorky.core.search.PatternHelper.bitCount;
 
@@ -23,7 +21,7 @@ class EvaluatorImpl implements Evaluator<PositionImpl, StoneClassScore> {
 
 	public static final EvaluatorImpl DEFAULT = new EvaluatorImpl(PatternHelper.defaultPatterns());
 
-    private static int PLAYER_MASK = (1 << Piskvorky.SIZE) - 1;
+    private static int PLAYER_MASK = (1 << Constants.SIZE) - 1;
 
     private final int patternLength;
     private final int opponentMask;
@@ -32,7 +30,7 @@ class EvaluatorImpl implements Evaluator<PositionImpl, StoneClassScore> {
 	EvaluatorImpl(Pattern[] patterns) {
         assert bitCount(patterns.length) == 1 : "Number of patterns is not power of 2";
         patternLength = bitCount(patterns.length - 1);
-        assert patternLength >= Piskvorky.SIZE : "Not enough patterns";
+        assert patternLength >= Constants.SIZE : "Not enough patterns";
         opponentMask = ((1 << patternLength) - 1) ^ PLAYER_MASK;
         this.patterns = patterns;
 	}
@@ -57,7 +55,7 @@ class EvaluatorImpl implements Evaluator<PositionImpl, StoneClassScore> {
 
 	LineEvaluation evaluate(Line line) {
 		var length = line.length();
-		assert length >= Piskvorky.SIZE : "Line is too short";
+		assert length >= Constants.SIZE : "Line is too short";
 		var whiteClasses = new StoneClass[length];
 		var blackClasses = new StoneClass[length];
 		// Setting all bits are set to 1

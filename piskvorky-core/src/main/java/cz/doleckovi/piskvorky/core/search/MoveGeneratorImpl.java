@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.core.search;
 
-import cz.doleckovi.piskvorky.api.search.Player;
+import cz.doleckovi.piskvorky.api.board.Side;
 import cz.doleckovi.piskvorky.api.board.Position;
 import cz.doleckovi.piskvorky.api.board.Stone;
 import cz.doleckovi.piskvorky.api.search.Move;
@@ -14,7 +14,7 @@ import java.util.List;
 public class MoveGeneratorImpl<P extends Position<P>> implements MoveGenerator<P> {
 
 	@Override
-	public List<Move> generateMoves(P position, Player player) {
+	public List<Move> generateMoves(P position, Side side) {
 		var board = position.board();
 		var width = board.width();
 		var height = board.height();
@@ -22,12 +22,12 @@ public class MoveGeneratorImpl<P extends Position<P>> implements MoveGenerator<P
 		for (var row = 0; row < height; ++row)
 			for (var column = 0; column < width; ++column)
 				if (position.stone(column, row) == Stone.EMPTY)
-					result.add(new MoveImpl(player, column, row));
+					result.add(new MoveImpl(side, column, row));
 		return result;
 	}
 
 	@Override
-	public Collection<Move> generateKillerMoves(P position, Player player) {
+	public Collection<Move> generateKillerMoves(P position, Side side) {
 		return List.of();
 	}
 
