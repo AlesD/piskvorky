@@ -12,7 +12,7 @@ import java.util.List;
  * <p>The generator might cache previously generated moves and/or alter their ordering based on previous searches.</p>
  * @param <P> Position type
  */
-public interface MoveGenerator<P extends Position<P>> {
+public interface MoveGenerator<P extends Position> {
 
 	/** Generate moves for given position.
 	 * <p>Order of moves matter. Search algorithm will use the moves in given order.</p>

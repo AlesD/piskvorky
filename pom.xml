@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
+		<version>3.5.0</version>
 	</parent>
 
 	<groupId>cz.doleckovi.piskvorky</groupId>
@@ -45,7 +45,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>23</maven.compiler.source>
 		<maven.compiler.target>23</maven.compiler.target>
-		<argLine/>
+        <argLine/>
+        <!-- Spring Boot 3.5.0 overrides -->
+        <junit-jupiter.version>6.0.0</junit-jupiter.version>
 	</properties>
 
 	<dependencies>

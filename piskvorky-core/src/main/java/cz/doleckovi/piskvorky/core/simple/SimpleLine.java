@@ -1,6 +1,7 @@
 package cz.doleckovi.piskvorky.core.simple;
 
 import cz.doleckovi.piskvorky.api.Constants;
+import cz.doleckovi.piskvorky.api.position.Cell;
 import cz.doleckovi.piskvorky.api.position.Line;
 import cz.doleckovi.piskvorky.api.position.Stone;
 
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class SimpleLine implements Constants, Line<SimpleCell> {
+public class SimpleLine<C extends Cell> implements Constants, Line<C> {
 
 	private static void adjustCells(SimpleCell cell, ListIterator<SimpleCell> cells) {
 		while (cells.hasNext()) {
@@ -30,10 +31,10 @@ public class SimpleLine implements Constants, Line<SimpleCell> {
 		}
 	}
 
-	private final List<SimpleCell> cells;
+	private final List<C> cells;
 	private final boolean terminal;
 
-	private SimpleLine(List<SimpleCell> cells, boolean terminal) {
+	private SimpleLine(List<C> cells, boolean terminal) {
 		this.cells = List.copyOf(cells);
 		this.terminal = terminal;
 	}
@@ -43,8 +44,8 @@ public class SimpleLine implements Constants, Line<SimpleCell> {
 	}
 
 	@Override
-	public List<SimpleCell> cells() {
-		return cells;
+	public C cell(int index) {
+		return cells.get(index);
 	}
 
 	@Override

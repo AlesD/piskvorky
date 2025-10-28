@@ -14,8 +14,8 @@ import java.util.function.IntFunction;
 public class SimplePosition<C extends Cell, F extends Field> implements Constants, Position<C, F> {
 
 	private final Board board;
-	private final List<Line<C>> lines;
-	private final boolean terminal;
+    private final boolean terminal;
+    private final List<SimpleLine<C>> lines;
 
 	SimplePosition(Board board) {
 		this.board = board;
@@ -42,7 +42,7 @@ public class SimplePosition<C extends Cell, F extends Field> implements Constant
 	}
 
 	@Override
-	public List<SimpleLine> lines() {
+	public SimpleLine<C> line(int index) {
 		return lines;
 	}
 

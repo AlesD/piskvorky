@@ -10,7 +10,7 @@ import java.util.Optional;
  * @param <P> Position type
  */
 @FunctionalInterface
-public interface Search<C extends SearchContext, P extends Position<P>> {
+public interface Search<C extends SearchContext, P extends Position> {
 
 	/** Find best move.
 	 * @param context Search context

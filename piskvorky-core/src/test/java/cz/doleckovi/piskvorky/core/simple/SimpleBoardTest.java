@@ -2,14 +2,18 @@ package cz.doleckovi.piskvorky.core.simple;
 
 import cz.doleckovi.piskvorky.api.Constants;
 import cz.doleckovi.piskvorky.api.position.Stone;
-import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.IntStream;
 
-class SimpleBoardTest implements WithAssertions {
+class SimpleBoardTest extends BoardTest<SimpleBoard> {
 
-	@Test
+    @Override
+    protected SimpleBoard board(final int size) {
+        return new SimpleBoard(size);
+    }
+
+    @Test
 	void allowsMinimalBoardSize() {
 		assertThatCode(() -> new SimpleBoard(Constants.SIZE))
 				.doesNotThrowAnyException();

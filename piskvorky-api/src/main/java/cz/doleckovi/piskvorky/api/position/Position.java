@@ -5,9 +5,10 @@ import cz.doleckovi.piskvorky.api.board.*;
 import cz.doleckovi.piskvorky.api.game.Game;
 import cz.doleckovi.piskvorky.api.search.Move;
 import cz.doleckovi.piskvorky.api.search.Search;
+import cz.doleckovi.piskvorky.api.Muttable;
 
 /** Position on board.
- * <p>Position must be thread-safe and immutable.</p>
+ * <p>Position must be thread-safe.</p>
  */
 public interface Position<C extends Cell, F extends Field> {
 
@@ -22,10 +23,11 @@ public interface Position<C extends Cell, F extends Field> {
 	boolean isTerminal();
 
 	Line<C> line(int index);
+
 	F field(FieldAddress address);
 
 	/** Creates new position with given stone on given field.
-	 * <p>This method is used by {@link Game}.</p>
+	 * <p>This method is used by {@link Game}. {@link Muttable} positions can return itself.</p>
 	 * @param field Field address
 	 * @param stone Stone to place
 	 * @return New position with the stone on it

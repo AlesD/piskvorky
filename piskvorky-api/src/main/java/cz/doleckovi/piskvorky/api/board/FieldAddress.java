@@ -1,9 +1,16 @@
 package cz.doleckovi.piskvorky.api.board;
 
+import cz.doleckovi.piskvorky.api.Immutable;
+
 /** Field address.
  * <p>Helps to abstract internal organization of position.</p>
  */
-public interface FieldAddress extends BoardObject {
+public interface FieldAddress extends Immutable {
+
+    /** Gets field index.
+     * @return Field index
+     */
+    int index();
 
 	/** Gets column number.
 	 * <p>Columns are numbered from 0.</p>

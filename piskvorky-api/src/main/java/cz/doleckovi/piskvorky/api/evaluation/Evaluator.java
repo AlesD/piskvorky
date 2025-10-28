@@ -7,7 +7,7 @@ import cz.doleckovi.piskvorky.api.position.Position;
  * @param <S> Score type
  */
 @FunctionalInterface
-public interface Evaluator<P extends Position<P>, S extends Score<S>> {
+public interface Evaluator<P extends Position, S extends Score<S>> {
 
 	/** Evaluate position.
 	 * <p>Equal positions must produce same evaluation.</p>
