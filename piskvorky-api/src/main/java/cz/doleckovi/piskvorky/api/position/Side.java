@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.api.board;
+package cz.doleckovi.piskvorky.api.position;
 
 /** Symbolic constants for side to play. */
 public enum Side {

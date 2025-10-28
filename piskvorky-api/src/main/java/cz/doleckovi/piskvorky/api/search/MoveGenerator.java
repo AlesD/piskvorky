@@ -1,7 +1,7 @@
 package cz.doleckovi.piskvorky.api.search;
 
-import cz.doleckovi.piskvorky.api.board.Position;
-import cz.doleckovi.piskvorky.api.board.Side;
+import cz.doleckovi.piskvorky.api.position.Position;
+import cz.doleckovi.piskvorky.api.position.Side;
 
 import java.util.List;
 

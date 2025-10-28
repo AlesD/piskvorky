@@ -1,7 +1,7 @@
 package cz.doleckovi.piskvorky.api.evaluation;
 
 import cz.doleckovi.piskvorky.api.Self;
-import cz.doleckovi.piskvorky.api.board.Side;
+import cz.doleckovi.piskvorky.api.position.Side;
 
 /** Evaluation score.
  * <p>There is only one score for a position and is same for both players.</p>

@@ -1,7 +1,7 @@
 package cz.doleckovi.piskvorky.core.simple;
 
 import cz.doleckovi.piskvorky.api.Constants;
-import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.api.position.Stone;
 import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Test;
 

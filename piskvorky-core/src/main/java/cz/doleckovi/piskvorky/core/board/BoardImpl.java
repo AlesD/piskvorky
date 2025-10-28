@@ -2,10 +2,12 @@ package cz.doleckovi.piskvorky.core.board;
 
 import cz.doleckovi.piskvorky.api.Constants;
 import cz.doleckovi.piskvorky.api.board.Board;
+import cz.doleckovi.piskvorky.api.board.FieldAddress;
+import cz.doleckovi.piskvorky.api.board.LineDescriptor;
 
 import java.util.*;
 
-public class BoardImpl implements Board<PositionImpl> {
+public class BoardImpl {
 
 	/** Generates mapping from FieldAddress to filedIndex.
 	 *
@@ -129,6 +131,8 @@ public class BoardImpl implements Board<PositionImpl> {
 	private final FieldDescriptor[][] fieldDescriptorArray;
 	private final PositionImpl initialPosition;
 
+	private final List<FieldAddress> fields;
+	private final List<LineDescriptor> lines;
 
 	/** Create new board instance.
 	 * @param sideSize Board side size

@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.api.evaluation;
 
-import cz.doleckovi.piskvorky.api.board.Position;
+import cz.doleckovi.piskvorky.api.position.Position;
 
 /** Position evaluator.
  * @param <P> Position type

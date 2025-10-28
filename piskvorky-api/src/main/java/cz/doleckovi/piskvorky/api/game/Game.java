@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.api.game;
 
-import cz.doleckovi.piskvorky.api.board.Position;
+import cz.doleckovi.piskvorky.api.position.Position;
 
 /** Game. */
 public interface Game<P extends Position<P>> {
