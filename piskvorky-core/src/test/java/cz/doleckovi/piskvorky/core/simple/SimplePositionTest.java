@@ -1,15 +1,18 @@
 package cz.doleckovi.piskvorky.core.simple;
 
 import cz.doleckovi.piskvorky.api.Constants;
+import cz.doleckovi.piskvorky.api.board.Board;
 import cz.doleckovi.piskvorky.api.position.Stone;
 import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Test;
 
 class SimplePositionTest implements WithAssertions {
 
+	static Board board = new SimpleBoard(Board.minSize());
+
 	@Test
 	void detectionOfTerminalPositionsWork() {
-		var position = new SimpleBoard(Constants.SIZE).initialPosition()
+		var position = new SimplePosition(board)
 				// Downhill without stone at end
 				.withStone(0, 0, Stone.WHITE)
 				.withStone(1, 1, Stone.WHITE)
@@ -57,7 +60,7 @@ class SimplePositionTest implements WithAssertions {
 
 	@Test
 	void doesNotAllowPuttingStoneInTerminalPosition() {
-		var position = new SimpleBoard(Constants.SIZE).initialPosition()
+		var position = new SimplePosition(board)
 				.withStone(0, 0, Stone.BLACK)
 				.withStone(1, 1, Stone.BLACK)
 				.withStone(2, 2, Stone.BLACK)

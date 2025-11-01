@@ -9,7 +9,7 @@ class SimpleCellAddress implements CellAddress {
     private final int line;
     private final int offset;
 
-    public SimpleCellAddress(int line, int offset) {
+    SimpleCellAddress(int line, int offset) {
         this.line = line;
         this.offset = offset;
     }

@@ -5,9 +5,7 @@ import cz.doleckovi.piskvorky.api.board.FieldAddress;
 import cz.doleckovi.piskvorky.api.board.LineDescriptor;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.StringJoiner;
 
 class SimpleLineDescriptor implements LineDescriptor {
 

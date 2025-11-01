@@ -6,6 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/src/main/java/cz/doleckovi/piskvorky/core/search" />
       <excludeFolder url="file://$MODULE_DIR$/src/test/java/cz/doleckovi/piskvorky/core/board" />
       <excludeFolder url="file://$MODULE_DIR$/src/test/java/cz/doleckovi/piskvorky/core/search" />
+      <excludeFolder url="file://$MODULE_DIR$/src/test/java/cz/doleckovi/piskvorky/core/simple" />
     </content>
   </component>
 </module>

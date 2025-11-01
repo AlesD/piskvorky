@@ -25,8 +25,9 @@ public interface FieldAddress extends Immutable {
 	int row();
 
 	/** Gets address of cell.
+	 * <p>Note that fields in corners might be cells for digonal lines.</p>
 	 * @param direction Line direction
-	 * @return Cell address
+	 * @return Cell address or {@code null}
 	 */
 	CellAddress cell(Direction direction);
 

@@ -7,6 +7,10 @@ import cz.doleckovi.piskvorky.api.Immutable;
 /** Board on which games are played. */
 public interface Board extends Immutable {
 
+	static int minSize() {
+		return 5;
+	}
+
     /** Gets board size.
      * @return Board size
      */
@@ -17,9 +21,9 @@ public interface Board extends Immutable {
 	 */
 	int lineCount();
 
-    /** Gets line descriptor.
+    /** Gets line address.
      * @param index Line index
-     * @return Descriptor of line with given index
+     * @return Address of line with given index
      * @throws IndexOutOfBoundsException if index is less than zero or greater or equal than line count
      */
 	LineDescriptor line(int index) throws IndexOutOfBoundsException;
@@ -62,7 +66,10 @@ public interface Board extends Immutable {
      * @return Cell address
      * @throws IndexOutOfBoundsException if either line or offer is out of board
      */
-    CellAddress cell(int line, int offset) throws IndexOutOfBoundsException;
+    default CellAddress cell(int line, int offset) throws IndexOutOfBoundsException {
+		var address = line(line);
+		return line(line).field(offset).cell(address.direction());
+    }
 
 	/** Translates cell address to field addresses.
 	 * @param field Filed address

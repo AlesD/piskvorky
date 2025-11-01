@@ -11,4 +11,11 @@
 	</parent>
 	<artifactId>piskvorky-api</artifactId>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.collections</groupId>
+			<artifactId>eclipse-collections</artifactId>
+			<version>11.1.0</version>
+		</dependency>
+	</dependencies>
 </project>

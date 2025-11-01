@@ -1,35 +1,38 @@
 package cz.doleckovi.piskvorky.api.position;
 
-import cz.doleckovi.piskvorky.api.Constants;
-import cz.doleckovi.piskvorky.api.board.Board;
-import cz.doleckovi.piskvorky.api.board.LineDescriptor;
+/** Line on board.
+ * <p>Line must be thread safe.</p>
+ * @param <L> Line data type
+ * @param <C> Cell data type
+ */
+public interface Line<L extends LineData, C extends CellData> {
 
-import java.util.List;
-
-public interface Line<C extends Cell> {
-
-    LineDescriptor getDescriptor();
-
-	/** Checks if the line is terminal.
-	 * @return {@code true} if position contains {@value Constants#SIZE} same stones in row
+	/** Gets line data.
+	 * @return Line data
 	 */
-	boolean isTerminal();
+	L lineData();
 
-    /** Gets cell.
-     * @param index Cell index
-     * @return Cell at index
+	/** Gets cell count
+	 * @return Cell count
+	 */
+	int cellCount();
+
+	/** Gets cell data.
+     * @param offset Cell offset
+     * @return Cell data
      */
-    C cell(int index);
+    C cellData(int offset);
 
     /** Creates new line with given stone.
 	 * @param offset Offset from the beginning of line
 	 * @param stone Stone to place
-	 * @return New line with the stone on given offset
+     * @param callback Receiver of callbacks for data changes
+	 * @return New line with the given stone
 	 * @throws IndexOutOfBoundsException if given offset is not within line
-	 * @throws IllegalArgumentException  if there is already stone on given offset
-	 * @throws IllegalStateException     if invoked on terminal position
+	 * @throws IllegalArgumentException  if the stone is {@link Stone#EMPTY empty}
+	 * @throws IllegalStateException     if invoked on terminal position or if there is already stone at given offset
 	 */
-	Line<C> withStone(int offset, Stone stone)
+	Line<L, C> withStone(int offset, Stone stone, LineCallback<L, C> callback)
 			throws IndexOutOfBoundsException, IllegalArgumentException, IllegalStateException;
 
 }
