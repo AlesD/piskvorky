@@ -1,96 +1,173 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import cz.doleckovi.piskvorky.api.board.Direction;
-import cz.doleckovi.piskvorky.api.board.Board;
-import cz.doleckovi.piskvorky.api.board.Player;
-import cz.doleckovi.piskvorky.api.board.Field;
-import cz.doleckovi.piskvorky.api.board.Position;
-import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.api.board.*;
 
-import java.util.AbstractList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
 
-public class PositionImpl implements Position {
+public class PositionImpl implements Position<PositionImpl> {
 
-	/** Constructs new instance.
-	 * @param board Uninitialized board
-	 * @return Fully initialized position without any stones
-	 */
-	static PositionImpl emptyPosition(BoardImpl board) {
-		var fields = new FieldImpl[board.getWidth() * board.getHeight()];
-		Arrays.fill(fields, new FieldImpl(Stone.EMPTY, 0));
-		return new PositionImpl(board, false, 0, fields);
-	}
+    private final BoardImpl board;
+    private final Stone[] stones;
+	private final PositionData data;
+	private final LineData[] lines;
+	private final FieldData[] fields;
+    private final CellData[][] cells;
 
-	private class FieldList extends AbstractList<Field> {
+    PositionImpl(BoardImpl board) {
+        this.board = board;
+        stones = new Stone[board().fieldCount()];
+        Arrays.fill(stones, Stone.EMPTY);
+        data = PositionData.EMPTY;
+        lines = new LineData[board.lineCount()];
+        Arrays.fill(lines, LineData.EMPTY);
+        fields = new FieldData[board.fieldCount()];
+        Arrays.fill(fields, FieldData.EMPTY);
+        cells = new CellData[board.lineCount()][];
+        var cache = new CellData[cells.length + 1][];
+        for (var lineIndex = 0; lineIndex < lines.length; ++lineIndex) {
+            var descriptor = board.line(lineIndex);
+            var line = cache[descriptor.length()];
+            if (line == null) {
+                line = new CellData[descriptor.length()];
+                Arrays.fill(line, CellData.EMPTY);
+                cache[descriptor.length()] = line;
+            }
+            cells[lineIndex] = line;
+        }
+    }
 
-		@Override
-		public Field get(int index) {
-			return fields[index];
-		}
+    private PositionImpl(PositionImpl position, FieldAddressImpl field, Stone stone) {
+        this.board = position.board;
+        this.stones = position.stones.clone();
+        this.lines = position.lines.clone();
+        this.fields = position.fields.clone();
+        this.cells = position.cells.clone();
+        stones[field.index()] = stone;
+        var oldFieldData = fields[field.index()];
+        var fieldUpdater = oldFieldData.updater(); // Updated for field on intersection
+        var positionUpdater = position.data.updater();
+        for (var direction : Direction.values()) {
+            var cell = field.cell(direction);
+            if (cell == null)
+                continue;
+            var oldLineData = lines[cell.line()];
+            var newLineData = updateLine(cell, stone, fieldUpdater);
+            lines[cell.line()] = newLineData;
+            positionUpdater.update(oldLineData, newLineData);
+        }
+        var newFieldData = fieldUpdater.newData();
+        fields[field.index()] = newFieldData;
+        positionUpdater.fieldDataChanged(oldFieldData, newFieldData);
+        this.data = positionUpdater.newData();
+    }
 
-		@Override
-		public int size() {
-			return fields.length;
-		}
+    private LineData updateLine(CellAddressImpl cell, Stone stone, FieldData.Updater field)
+        throws IndexOutOfBoundsException, IllegalArgumentException, IllegalStateException
+    {
+        var cells = this.cells[cell.line()] = this.cells[cell.line()].clone();
+        var line = lines[cell.line()].updater();
+        var oldData = cells[cell.offset()];
+        var newData = cells[cell.offset()] = oldData.withStone(stone);
+        field.update(oldData, newData);
+        line.update(oldData, newData);
+        var descriptor = board.line(cell);
+        adjustCells(descriptor, cells, newData, cell.offset(), cells.length, 1, line);
+        adjustCells(descriptor, cells, newData, cell.offset(), -1, -1, line);
+        return line.newLine();
+    }
 
-	}
+    private void adjustCells(final LineDescriptorImpl descriptor, final CellData[] cells,
+            CellData newData, int offset, int end, int step, LineData.Updater line)
+    {
+        while ((offset += step) != end) {
+            CellData oldData = cells[offset];
+            if (oldData.stone() == newData.stone()) {
+                // Cell with same stone => will have same data as last changed
+                var field = descriptor.field(offset);
+                cells[offset] = newData;
+                fields[field.index()] = fields[field.index()].withCell(oldData, newData);
+                line.update(oldData, newData);
+            } else if (oldData.stone() != Stone.EMPTY) {
+                return;
+            } else {
+                // Empty cell => needs to recalculate data according to last changed and next
+                var field = descriptor.field(offset);
+                var nextOffset = offset + step;
+                CellData nextData;
+                if (nextOffset == end) {
+                    // There is no next
+                    nextData = null;
+                    newData = oldData.nextTo(newData);
+                } else {
+                    nextData = cells[nextOffset];
+                    newData = oldData.between(newData, nextData);
+                }
+                cells[offset] = newData;
+                fields[field.index()] = fields[field.index()].withCell(oldData, newData);
+                line.update(oldData, newData);
+                if (nextData != null) while (nextData.stone() == Stone.EMPTY) {
+                    // If the next cell is empty it might become move candidate
+                    newData = nextData.asMoveCandidate(newData);
+                    if (newData == nextData) return; // No change
+                    cells[nextOffset] = newData;
+                    field = descriptor.field(nextOffset);
+                    fields[field.index()] = fields[field.index()].withCell(nextData, newData);
+                    line.update(nextData, newData);
+                    if ((nextOffset += step) == end) return; // No next
+                    nextData = cells[nextOffset];
+                }
+                return;
+            }
+        }
+    }
 
-	private final BoardImpl board;
-	private final boolean terminal;
-	private final int generation;
-	private final FieldImpl[] fields;
-	private final List<Field> fieldList;
+    @Override
+    public BoardImpl board() {
+        return board;
+    }
 
-	private PositionImpl(BoardImpl board, boolean terminal, int generation, FieldImpl[] fields) {
-		this.board = board;
-		this.terminal = terminal;
-		this.generation = generation;
-		this.fields = fields;
-		fieldList = new FieldList();
-	}
+    @Override
+    public Stone stone(FieldAddress field) {
+        if (!(field instanceof FieldAddressImpl fieldAddressImpl))
+            throw new IllegalArgumentException("fieldAddress");
+        return stones[fieldAddressImpl.index()];
+    }
 
-	@Override
-	public Board getBoard() {
-		return board;
-	}
+    @Override
+    public boolean isTerminal() {
+        return data.isTerminal();
+    }
 
-	@Override
-	public boolean isTerminal() {
-		return terminal;
-	}
-
-	@Override
-	public List<Field> fields() {
-		return fieldList;
-	}
-
-	@Override
-	public Position setStone(int index, Player player)
+    @Override
+	public PositionImpl withStone(FieldAddress fieldAddress, Stone stone)
 			throws IndexOutOfBoundsException, IllegalArgumentException, IllegalStateException
 	{
-		if (terminal)
-			throw new IllegalStateException("Can't place stone in terminal position");
-		if (fields[index].stone != Stone.EMPTY)
-			throw new IllegalArgumentException("Field is not empty");
-		var fields = Arrays.copyOf(this.fields, this.fields.length);
-		var newGeneration = generation + 1;
-		fields[index] = new FieldImpl(player.stone, newGeneration);
-		for (var dir : Direction.values()) {
-			var iterator = board.iterator(index, dir);
-			var reverseIterator = iterator.reverseIterator();
-			var stonesInRow = 1;
-			while (iterator.hasNext() && fields[iterator.nextInt()].stone == player.stone) {
-				if (++stonesInRow == 5)
-					return new PositionImpl(board, true, newGeneration, fields);
-			}
-			while (reverseIterator.hasNext() && fields[reverseIterator.nextInt()].stone == player.stone) {
-				if (++stonesInRow == 5)
-					return new PositionImpl(board, true, newGeneration, fields);
-			}
-		}
-		return new PositionImpl(board, false, newGeneration, fields);
+		if (!(fieldAddress instanceof FieldAddressImpl fieldAddressImpl))
+			throw new IllegalArgumentException("fieldAddress");
+        if (stones[fieldAddressImpl.index()] != Stone.EMPTY)
+            throw new IllegalStateException("Field %s is not empty".formatted(fieldAddress));
+        return new PositionImpl(this, fieldAddressImpl, stone);
 	}
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        PositionImpl position = (PositionImpl) o;
+        return Objects.equals(board, position.board) && Objects.deepEquals(stones, position.stones);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, Arrays.hashCode(stones));
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", PositionImpl.class.getSimpleName() + "[", "]")
+                .add("size=" + board.size())
+                .add("stones=" + Arrays.toString(stones))
+                .toString();
+    }
 }
