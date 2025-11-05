@@ -1,36 +1,38 @@
 package cz.doleckovi.piskvorky.api.board;
 
-import java.util.List;
+import cz.doleckovi.piskvorky.api.Constants;
 
 /** Position on board.
- * <p>Position must be thread-safe and immutable.</p>
+ * <p>Position must be thread-safe.</p>
+ * @param <SELF> This position type
  */
-public interface Position {
+public interface Position<SELF extends Position<SELF>> {
 
 	/** Gets board on which is the game played.
 	 * @return Board instance
 	 */
-	Board getBoard();
+	Board board(); // Does position really need board?
 
-	/** Determine if the position is terminal.
-	 * @return true if the position contains 5-in-row
-	 */
-	boolean isTerminal();
+    /** Gets stone on given field.
+     * @param field Field address
+     * @return Stone on given field
+     */
+    Stone stone(FieldAddress field);
 
-	/** Fields of the board.
-	 * @return Unmodifiable list of fields
-	 */
-	List<Field> fields();
+    /** Checks if the position is terminal.
+     * @return {@code true} if one of the sides has uninterrupted sequence of {@value Constants#WIN_LENGTH} stones on the board
+     */
+    boolean isTerminal();
 
-	/** Puts stone on specific place on board.
-	 * @param index Field index
-	 * @param player Player placing the stone on board
-	 * @return New position with stone on specified field
-	 * @throws IndexOutOfBoundsException if the index does not fit to board
-	 * @throws IllegalArgumentException  if the there is already stone on given row or column
-	 * @throws IllegalStateException     if invoked on terminal position
+	/** Creates new position with given stone on given field.
+	 * @param field Field address
+	 * @param stone Stone to place
+	 * @return New position with the stone on it
+	 * @throws IndexOutOfBoundsException if the field is out of board
+	 * @throws IllegalArgumentException  if the stone is {@link Stone#EMPTY EMPTY}
+	 * @throws IllegalStateException     if there is already stone on the given field
 	 */
-	Position setStone(int index, Player player)
+	SELF withStone(FieldAddress field, Stone stone)
 			throws IndexOutOfBoundsException, IllegalArgumentException, IllegalStateException;
 
 }

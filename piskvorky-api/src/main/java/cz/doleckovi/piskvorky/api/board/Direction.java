@@ -1,15 +1,21 @@
 package cz.doleckovi.piskvorky.api.board;
 
-/** Direction on the board.
- * <p>All directions increase field indexes.</p>
- */
 public enum Direction {
-	/** Increases column number. */
-	LEFT,
-	/** Increases column number and row number. */
-	LEFT_DOWN,
-	/** Increases row number. */
-	DOWN,
-	/** Increases row number and decreases column number. */
-	DOWN_RIGHT
+
+	HORIZONTAL("⇒"),    // U+21D2
+	VERTICAL("⇓"),      // U+21D3
+	UPHILL("⇗"),        // U+21D7
+	DOWNHILL("⇘");      // U+21D8
+
+    Direction(String arrow) {
+        this.arrow = arrow;
+    }
+
+    private final String arrow;
+
+    @Override
+    public String toString() {
+        return arrow;
+    }
+
 }

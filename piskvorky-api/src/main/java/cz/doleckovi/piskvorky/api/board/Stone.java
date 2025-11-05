@@ -3,22 +3,25 @@ package cz.doleckovi.piskvorky.api.board;
 /** Stone placed on board. */
 public enum Stone {
 
-	/** No stone. */
+	/** No stone.
+     * <p>Artificial value meaning <em>no stone</em>. This stone cannot be put on board.</p>
+     */
 	EMPTY,
 	/** White stone. */
 	WHITE,
 	/** Black stone. */
-	BLACK;
-
-	private static final char EMPTY_SYMBOL = '·';
-	private static final char WHITE_SYMBOL = '⚪';
-	private static final char BLACK_SYMBOL = '⚫';
+	BLACK,
+    /** Blocking stone.
+     * <p>Artificial value meaning <em>stone of neither side</em>. Used for testing and to create board with "holes".</p>
+     */
+	BLOCK;
 
 	public static Stone valueOf(char symbol) {
 		return switch (symbol) {
-			case EMPTY_SYMBOL, '-', '?' -> EMPTY;
-			case WHITE_SYMBOL, 'O', 'o' -> WHITE;
-			case BLACK_SYMBOL, 'X', 'x' -> BLACK;
+			case '·', ' ', '-' -> EMPTY;
+			case '○', '⚪', 'O', 'o', 'W', 'w' -> WHITE;
+			case '●', '⚫', 'X', 'x', 'B', 'b' -> BLACK;
+			case '×', '#' -> BLOCK;
 			default -> throw new IllegalArgumentException("Unknown stone symbol: " + symbol);
 		};
 	}
@@ -26,9 +29,10 @@ public enum Stone {
 	@Override
 	public String toString() {
 		return switch (this) {
-			case EMPTY -> Character.toString(EMPTY_SYMBOL);
-			case WHITE -> Character.toString(WHITE_SYMBOL);
-			case BLACK -> Character.toString(BLACK_SYMBOL);
+			case EMPTY -> "·";
+			case WHITE -> "○"; // White circle U+25CB
+			case BLACK -> "●"; // Black circle U+25CF
+			case BLOCK -> "×";
 		};
 	}
 

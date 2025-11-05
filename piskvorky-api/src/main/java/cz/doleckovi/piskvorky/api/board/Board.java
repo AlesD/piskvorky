@@ -1,33 +1,35 @@
 package cz.doleckovi.piskvorky.api.board;
 
-/** Board on which games are played.
- * <p>Board instances must be immutable and can be shared by positions from many games.</p>
- */
+/** Board on which games are played. */
 public interface Board {
 
-	/** Gets board width.
-	 * <p>Board width is always greater or equal to 5.</p>
-	 * @return Board width
-	 */
-	int getWidth();
+    /** Gets board size.
+     * @return Board size
+     */
+    int size();
 
-	/** Gets board height.
-	 * <p>Board height is always greater or equal to 5.</p>
-	 * @return Board height
-	 */
-	int getHeight();
+    /** Gets field address.
+     * @param column Column number
+     * @param row Row number
+     * @return Address of field at given board coordinates
+     * @throws IndexOutOfBoundsException if either column or row is out of board
+     */
+    FieldAddress field(int column, int row) throws IndexOutOfBoundsException;
 
-	/** Initial <strong>empty</strong> position.
-	 * @return Initial position
-	 */
-	Position initialPosition();
+    /** Gets line descriptor.
+     * @param cell Cell address
+     * @return Address of line with given index
+     * @throws IllegalArgumentException if the cell is from different board
+     */
+	LineDescriptor line(CellAddress cell) throws IllegalArgumentException;
 
-	/** Helper function for converting board coordinates to field index.
-	 * @param column Column number
-	 * @param row Row number
-	 * @return Field index
-	 * @throws IndexOutOfBoundsException if either column or row does not fit to board
-	 */
-	int toIndex(int column, int row) throws IndexOutOfBoundsException;
+    /** Translates cell address to field address.
+     * @param cell Cell address
+     * @return Address of matching field
+     * @throws IndexOutOfBoundsException if the cell is out of board
+     */
+    default FieldAddress field(CellAddress cell) throws IndexOutOfBoundsException {
+        return line(cell).field(cell.offset());
+    }
 
 }
