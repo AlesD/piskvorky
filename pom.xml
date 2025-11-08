@@ -29,6 +29,7 @@
 	<modules>
 		<module>piskvorky-api</module>
 		<module>piskvorky-core</module>
+        <module>piskvorky-gtp</module>
 	</modules>
 
 	<scm>
