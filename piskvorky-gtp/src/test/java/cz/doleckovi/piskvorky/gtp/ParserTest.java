@@ -26,13 +26,13 @@ class ParserTest implements WithAssertions {
         "piskvorky-config white_name John F. Smith"
     })
     void testHelp(String input) {
-        var parser = new GTP2Parser(null);
+        var parser = new GTPParser(null);
         parser.setBuildParseTree(false);
-        var lexer = new GTP2Lexer(CharStreams.fromString(input));
+        var lexer = new GTPLexer(CharStreams.fromString(input));
         lexer.setLine(1);
         lexer.setCharPositionInLine(0);
         parser.setInputStream(new CommonTokenStream(lexer));
-        var result = parser.line();
+        var result = parser.action();
         if (result.exception != null)
             throw result.exception;
     }

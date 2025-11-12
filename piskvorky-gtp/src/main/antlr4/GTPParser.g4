@@ -3,31 +3,40 @@ parser grammar GTPParser;
 options { tokenVocab=GTPLexer; }
 
 @header {
-import cz.doleckovi.piskvorky.api;
+import cz.doleckovi.piskvorky.api.board.Side;
+import cz.doleckovi.piskvorky.api.board.Stone;
 }
 
 @members {
 CommandFactory factory;
 }
 
-action
-    : INTERRUPT
-    | command
+action returns [ Command value ]
+    : INTERRUPT # InterruptAction
+    | command   # CommandAction
     ;                                      
                                            
-command returns [ GTPCommand cmd; ]
-    : id=INTEGER? COMMAND TEXT { $cmd = factory.createCommand( $id == null ? $id.int : null, COMMAND.text, TEXT.text); }
-    : id=INTEGER? COMMAND { $cmd = factory.createCommand( $id == null ? $id.int : null, COMMAND.text); }
+command returns [ GTPCommand value ]
+    : COMMAND TEXT           # TextCommand
+    | COMMAND KEY TEXT       # KVPCommand
+    | COMMAND moves          # MovesCommand
+    | COMMAND move           # MoveCommand
+    | COMMAND VERTEX         # VertexCommand
+    | COMMAND color          # ColorCommand
+    | COMMAND number=INTEGER # NumberCommand
+    | COMMAND                # SimpleCommand
     ;
 
-moves: move+;
-
-color returns[ Side: side; ]
-    : WHITE { $side = Side.WHITE; }
-    | BLACK { $side = Side.BLACK; }
+moves returns [ List<Move> value ]
+    : move+
     ;
 
-move returns[ Stone: stone; Vertex: vertex; ]
-    : color VERTEX { $stone = $color.side.stone(); $vertex = Vertex.of($VERTEX.text); }
-    | BLOCK VERTEX { $stone = Stone.BLOCK; $vertex = Vertex.of($VERTEX.text); }
+move returns[ Move value ]
+    : color VERTEX # NormalMove
+    | BLOCK VERTEX # BlockMove
+    ;
+
+color returns[ Side value ]
+    : WHITE # WhiteColor
+    | BLACK # BlackColor
     ;

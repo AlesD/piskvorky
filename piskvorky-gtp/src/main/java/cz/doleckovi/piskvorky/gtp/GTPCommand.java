@@ -1,5 +1,5 @@
 package cz.doleckovi.piskvorky.gtp;
 
-public interface GTPCommand extends Command {
-    Integer id();
+public interface GTPCommand {
+    String execute(CommandContext context);
 }

@@ -2,7 +2,7 @@ lexer grammar GTPLexer;
 
 fragment INT: '0' | [1-9] [0-9]*;
 fragment WS: [ \t];
-fragment COMMENT: '#' .*;
+fragment COMMENT: '#' ~'\n'*;
 fragment ID_START: [a-zA-Z];
 fragment ID_CONTINUATION: ID_START | [0-9_];
 fragment ID: ID_START ID_CONTINUATION*;
