@@ -12,11 +12,10 @@ CommandFactory factory;
 }
 
 action returns [ Command value ]
-    : INTERRUPT # InterruptAction
-    | command   # CommandAction
-    ;                                      
-                                           
-command returns [ GTPCommand value ]
+	: INTEGER? command
+	;
+
+command returns [ Command value ]
     : COMMAND TEXT           # TextCommand
     | COMMAND KEY TEXT       # KVPCommand
     | COMMAND moves          # MovesCommand
@@ -25,6 +24,8 @@ command returns [ GTPCommand value ]
     | COMMAND color          # ColorCommand
     | COMMAND number=INTEGER # NumberCommand
     | COMMAND                # SimpleCommand
+    | INTERRUPT              # InterruptCommand
+    | EOF                    # EmptyCommand
     ;
 
 moves returns [ List<Move> value ]

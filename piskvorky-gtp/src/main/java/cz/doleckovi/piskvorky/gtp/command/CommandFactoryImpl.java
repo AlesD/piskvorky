@@ -8,18 +8,38 @@ import cz.doleckovi.piskvorky.gtp.Vertex;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 public class CommandFactoryImpl implements CommandFactory {
 
-    private final BeanFactory beanFactory;
+	private static final Logger LOGGER = Logger.getLogger(CommandFactoryImpl.class.getSimpleName());
+	static final Map<String, Class<? extends GTPCommand>> ALL_COMMANDS = new LinkedHashMap<>();
 
-    public CommandFactoryImpl(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
+	static {
+		ALL_COMMANDS.put(ProtocolVersionCommand.NAME, ProtocolVersionCommand.class);
+		ALL_COMMANDS.put(NameCommand.NAME, NameCommand.class);
+		ALL_COMMANDS.put(VersionCommand.NAME, VersionCommand.class);
+		ALL_COMMANDS.put(KnownCommandCommand.NAME, KnownCommandCommand.class);
+		ALL_COMMANDS.put(ListCommandsCommand.NAME, ListCommandsCommand.class);
+		// GNU Go Extensions
+		ALL_COMMANDS.put(EchoCommand.NAME, EchoCommand.class);
+	}
+
+	private final NameCommand nameCommand = NameCommand.INSTANCE;
+	private final VersionCommand versionCommand = new VersionCommand();
 
     public GTPCommand createSimpleCommand(String commandName) {
-        return beanFactory.getBean(commandName, GTPCommand.class);
+		return switch (commandName) {
+			case ProtocolVersionCommand.NAME -> ProtocolVersionCommand.INSTANCE;
+			case NameCommand.NAME -> nameCommand;
+			case VersionCommand.NAME -> versionCommand;
+			default -> throw new IllegalArgumentException();
+		};
 //                    | 'help'
 //                    | 'quit'
 //                    | 'clear_board'
@@ -71,11 +91,11 @@ public class CommandFactoryImpl implements CommandFactory {
 
     public GTPCommand createTextCommand(String commandName, String text) {
         return switch (commandName) {
-            case "known_command" -> beanFactory.getBean(KnownCommandCommand.class, text);
-            case "echo" -> beanFactory.getBean(EchoCommand.class, text);
+	        case KnownCommandCommand.NAME -> new KnownCommandCommand(text);
+	        case EchoCommand.NAME -> new EchoCommand(text);
 //                    // GNU Go Extensions
 //                    | 'echo_err' string=TEXT               # IntCommand
-            default -> (GTPCommand) beanFactory.getBean(commandName, text);
+	        default -> throw new IllegalArgumentException();
         };
     }
 

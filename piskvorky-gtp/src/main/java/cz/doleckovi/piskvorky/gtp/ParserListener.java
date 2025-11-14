@@ -85,7 +85,26 @@ public class ParserListener extends GTPParserBaseListener {
         ctx.value = factory.createTextCommand(ctx.COMMAND().getText(), ctx.TEXT().getText());
     }
 
-    private Vertex getVertex(TerminalNode vertex) {
+	@Override
+	public void exitAction(GTPParser.ActionContext ctx) {
+		if (ctx.INTEGER() == null) {
+			ctx.value = ctx.command().value;
+		} else {
+			ctx.value = factory.decorateCommand(ctx.INTEGER().getText(), ctx.command().value);
+		}
+	}
+
+	@Override
+	public void exitInterruptCommand(GTPParser.InterruptCommandContext ctx) {
+		ctx.value = factory.createInterruptCommand();
+	}
+
+	@Override
+	public void exitEmptyCommand(GTPParser.EmptyCommandContext ctx) {
+		ctx.value = factory.createEmptyCommand();
+	}
+
+	private Vertex getVertex(TerminalNode vertex) {
         return Vertex.parse(vertex.getText());
     }
 }

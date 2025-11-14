@@ -36,7 +36,7 @@ public class CommandAutoConfiguration {
 
     @Bean(name = ProtocolVersionCommand.NAME)
     public ProtocolVersionCommand protocolVersionCommand() {
-        return new ProtocolVersionCommand();
+        return ProtocolVersionCommand.INSTANCE;
     }
 
     @Bean(name = NameCommand.NAME)
@@ -52,7 +52,7 @@ public class CommandAutoConfiguration {
     @Bean(name = KnownCommandCommand.NAME)
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public KnownCommandCommand knownCommandCommand(String commandName) {
-        return new KnownCommandCommand(Arrays.binarySearch(sortedCommandNames(), commandName) >= 0);
+        return new KnownCommandCommand(commandName);
     }
 
     @Bean(name = ListCommandsCommand.NAME)
@@ -68,7 +68,7 @@ public class CommandAutoConfiguration {
 
     @Bean
     public CommandFactoryImpl commandFactory() {
-        return new CommandFactoryImpl(beanFactory);
+        return new CommandFactoryImpl();
     }
 
 }

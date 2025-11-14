@@ -18,7 +18,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>cz.doleckovi.piskvorky</groupId>
-			<artifactId>piskvorky-api</artifactId>
+			<artifactId>piskvorky-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
         <dependency>

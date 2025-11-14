@@ -15,4 +15,7 @@ public interface CommandFactory {
     GTPCommand createMovesCommand(String commandName, List<Move> moves);
     GTPCommand createKVPCommand(String commandName, String key, String value);
 
+	Command decorateCommand(String id, Command value);
+	Command createInterruptCommand();
+	Command createEmptyCommand();
 }

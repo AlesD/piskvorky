@@ -8,16 +8,29 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Command(name = VersionCommand.NAME, description = "Version of the engine")
 public class VersionCommand implements GTPCommand {
 
-    public static final String NAME = "version";
-    public static final String DESCRIPTION = "Version of the engine";
+	private static final String VERSION_RESOURCE = "/META-INF/maven/cz.doleckovi.piskvorky/piskvorky-gtp/pom.properties";
+	private static final Logger LOGGER = Logger.getLogger(CommandFactoryImpl.class.getSimpleName());
+
+	public static final String NAME = "version";
 
     private final String version;
 
     public VersionCommand(String version) {
         this.version = version;
     }
+
+	public VersionCommand() {
+		var properties = new Properties();
+		try (var is = VersionCommand.class.getResourceAsStream(VERSION_RESOURCE)) {
+			if (is != null) properties.load(is);
+		} catch (IOException e) {
+			LOGGER.warning("Failed to load pom.properties");
+		}
+		this(properties.getProperty("version", "unknown"));
+	}
 
     @Override
     public String execute(CommandContext context) {
