@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.gtp.autoconfigure;
 
-import cz.doleckovi.piskvorky.gtp.GTPCommand;
+import cz.doleckovi.piskvorky.gtp.command.GTPCommand;
 import cz.doleckovi.piskvorky.gtp.command.*;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,7 @@
 package cz.doleckovi.piskvorky.gtp;
 
 import cz.doleckovi.piskvorky.api.board.Side;
+import cz.doleckovi.piskvorky.gtp.command.GTPCommand;
 
 import java.util.List;
 

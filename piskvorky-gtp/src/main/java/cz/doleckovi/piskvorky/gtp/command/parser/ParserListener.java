@@ -1,7 +1,11 @@
-package cz.doleckovi.piskvorky.gtp;
+package cz.doleckovi.piskvorky.gtp.command.parser;
 
 import cz.doleckovi.piskvorky.api.board.Side;
 import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.gtp.CommandFactory;
+import cz.doleckovi.piskvorky.gtp.command.parser.GTPParserBaseListener;
+import cz.doleckovi.piskvorky.gtp.Move;
+import cz.doleckovi.piskvorky.gtp.Vertex;
 import cz.doleckovi.piskvorky.gtp.command.CommandFactoryImpl;
 import org.antlr.v4.runtime.tree.TerminalNode;
 

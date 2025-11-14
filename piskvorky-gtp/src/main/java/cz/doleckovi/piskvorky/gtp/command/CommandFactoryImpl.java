@@ -2,17 +2,12 @@ package cz.doleckovi.piskvorky.gtp.command;
 
 import cz.doleckovi.piskvorky.api.board.Side;
 import cz.doleckovi.piskvorky.gtp.CommandFactory;
-import cz.doleckovi.piskvorky.gtp.GTPCommand;
 import cz.doleckovi.piskvorky.gtp.Move;
 import cz.doleckovi.piskvorky.gtp.Vertex;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 public class CommandFactoryImpl implements CommandFactory {

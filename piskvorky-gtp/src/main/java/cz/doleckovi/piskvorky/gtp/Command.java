@@ -1,5 +1,6 @@
 package cz.doleckovi.piskvorky.gtp;
 
-public interface Command {
-    String execute(CommandContext context);
+import java.util.concurrent.Callable;
+
+public interface Command extends Callable<String> {
 }

@@ -1,9 +1,7 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
 import cz.doleckovi.piskvorky.gtp.CommandContext;
-import cz.doleckovi.piskvorky.gtp.GTPCommand;
 
-@Command(name = NameCommand.NAME, description = "Name of the engine")
 public class NameCommand implements GTPCommand {
 
     public static final String NAME = "name";

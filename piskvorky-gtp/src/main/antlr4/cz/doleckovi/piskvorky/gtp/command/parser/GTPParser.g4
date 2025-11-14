@@ -5,6 +5,10 @@ options { tokenVocab=GTPLexer; }
 @header {
 import cz.doleckovi.piskvorky.api.board.Side;
 import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.gtp.Command;
+import cz.doleckovi.piskvorky.gtp.CommandFactory;
+import cz.doleckovi.piskvorky.gtp.Move;
+import cz.doleckovi.piskvorky.gtp.Vertex;
 }
 
 @members {

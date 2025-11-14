@@ -11,4 +11,5 @@ public interface Session {
 	Game getGame();
 	void resetGame();
 
+    boolean isAlive();
 }

@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.gtp;
+package cz.doleckovi.piskvorky.gtp.command.parser;
 
 import org.antlr.v4.runtime.BaseErrorListener;
 

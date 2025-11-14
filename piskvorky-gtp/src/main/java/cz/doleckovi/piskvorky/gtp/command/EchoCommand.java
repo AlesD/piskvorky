@@ -2,7 +2,6 @@ package cz.doleckovi.piskvorky.gtp.command;
 
 import cz.doleckovi.piskvorky.gtp.CommandContext;
 
-@Command(name = EchoCommand.NAME, description = "Echo the parameter")
 public class EchoCommand implements GNUGoCommand {
 
     public static final String NAME = "echo";

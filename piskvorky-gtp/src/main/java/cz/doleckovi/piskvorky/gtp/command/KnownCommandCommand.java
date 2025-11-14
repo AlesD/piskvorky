@@ -1,9 +1,7 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
 import cz.doleckovi.piskvorky.gtp.CommandContext;
-import cz.doleckovi.piskvorky.gtp.GTPCommand;
 
-@Command(name = KnownCommandCommand.NAME, description = "Tests support for specific command")
 public class KnownCommandCommand implements GTPCommand {
 
     public static final String NAME = "known_command";

@@ -1,14 +1,11 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
 import cz.doleckovi.piskvorky.gtp.CommandContext;
-import cz.doleckovi.piskvorky.gtp.GTPCommand;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Command(name = VersionCommand.NAME, description = "Version of the engine")
 public class VersionCommand implements GTPCommand {
 
 	private static final String VERSION_RESOURCE = "/META-INF/maven/cz.doleckovi.piskvorky/piskvorky-gtp/pom.properties";

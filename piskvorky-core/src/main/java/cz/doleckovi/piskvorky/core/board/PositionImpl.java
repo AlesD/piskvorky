@@ -15,7 +15,7 @@ public class PositionImpl implements Position<PositionImpl> {
 	private final FieldData[] fields;
     private final CellData[][] cells;
 
-    PositionImpl(BoardImpl board) {
+    public PositionImpl(BoardImpl board) {
         this.board = board;
         stones = new Stone[board().fieldCount()];
         Arrays.fill(stones, Stone.EMPTY);

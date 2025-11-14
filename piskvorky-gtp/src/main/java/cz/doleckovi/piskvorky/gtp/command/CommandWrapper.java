@@ -1,8 +1,7 @@
-package cz.doleckovi.piskvorky.gtp.session;
+package cz.doleckovi.piskvorky.gtp.command;
 
 import cz.doleckovi.piskvorky.gtp.Command;
 import cz.doleckovi.piskvorky.gtp.CommandContext;
-import cz.doleckovi.piskvorky.gtp.GTPCommand;
 
 public class CommandWrapper implements Command {
 
@@ -16,9 +15,11 @@ public class CommandWrapper implements Command {
 
 	@Override
 	public String execute(CommandContext context) {
-		try {
-			var response = command.execute(context);
-			context.
-		}
+        var response = command.execute(context);
+        var result = new StringBuilder();
+        if (id != null) result.append(id);
+        if (!result.isEmpty()) result.append(' ').append(response);
+        return result.toString();
 	}
+
 }

@@ -1,12 +1,12 @@
 package cz.doleckovi.piskvorky.gtp;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 
 public interface CommandContext {
 
 	Session session();
-	PrintWriter stdout();
+    PrintWriter stdout();
 	PrintWriter stderr();
 
 }
