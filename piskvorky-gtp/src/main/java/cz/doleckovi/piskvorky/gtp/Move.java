@@ -4,8 +4,8 @@ import cz.doleckovi.piskvorky.api.board.Stone;
 
 public class Move {
 
-    Stone stone;
-    Vertex vertex;
+    private final Stone stone;
+    private final Vertex vertex;
 
     public Move(Stone stone, Vertex vertex) {
         this.stone = stone;

@@ -1,5 +1,5 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
 public interface WithId {
-    int id();
+    String id();
 }

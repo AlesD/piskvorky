@@ -13,7 +13,7 @@ public class Vertex {
         this.row = row;
     }
 
-    static Vertex parse(String vertex) {
+    public static Vertex parse(String vertex) {
         var matcher = PATTERN.matcher(vertex);
         if (!matcher.matches())
             throw new IllegalArgumentException("Invalid vertex: %s".formatted(vertex));

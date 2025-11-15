@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
 
-public class ListCommandsCommand implements GTPCommand {
+public class ListCommandsCommand implements Command {
 
     public static final String NAME = "list_commands";
 	public static final ListCommandsCommand INSTANCE = new ListCommandsCommand();

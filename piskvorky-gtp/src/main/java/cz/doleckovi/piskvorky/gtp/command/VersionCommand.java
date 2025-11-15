@@ -1,21 +1,20 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
-import cz.doleckovi.piskvorky.gtp.CommandContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Logger;
 
-public class VersionCommand implements GTPCommand {
+@CommandInfo(name = "version", description = "Report the version number of the program")
+public class VersionCommand implements Command {
 
 	private static final String VERSION_RESOURCE = "/META-INF/maven/cz.doleckovi.piskvorky/piskvorky-gtp/pom.properties";
-	private static final Logger LOGGER = Logger.getLogger(CommandFactoryImpl.class.getSimpleName());
+	private static final Logger LOG = LoggerFactory.getLogger(VersionCommand.class);
 
-	public static final String NAME = "version";
+	private final String version;
 
-    private final String version;
-
-    public VersionCommand(String version) {
+	public VersionCommand(String version) {
         this.version = version;
     }
 
@@ -24,13 +23,13 @@ public class VersionCommand implements GTPCommand {
 		try (var is = VersionCommand.class.getResourceAsStream(VERSION_RESOURCE)) {
 			if (is != null) properties.load(is);
 		} catch (IOException e) {
-			LOGGER.warning("Failed to load pom.properties");
+			LOG.warn("Failed to load pom.properties", e);
 		}
 		this(properties.getProperty("version", "unknown"));
 	}
 
     @Override
-    public String execute(CommandContext context) {
+    public String execute() {
         return version;
     }
 

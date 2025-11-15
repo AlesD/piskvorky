@@ -49,6 +49,13 @@
                         <goals>
                             <goal>antlr4</goal>
                         </goals>
+<!--	                    <configuration>-->
+<!--		                    <outputDirectory>${project.build.directory}/generated-sources/antlr4/cz/doleckovi/piskvorky/gtp/parser</outputDirectory>-->
+<!--		                    <arguments>-->
+<!--			                    <argument>-package</argument>-->
+<!--			                    <argument>cz.doleckovi.piskvorky.gtp.parser</argument>-->
+<!--		                    </arguments>-->
+<!--	                    </configuration>-->
                     </execution>
                 </executions>
             </plugin>

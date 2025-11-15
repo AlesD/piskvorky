@@ -1,16 +1,14 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
-import cz.doleckovi.piskvorky.gtp.CommandContext;
+@CommandInfo(name = "protocol_version", description = "Report protocol version")
+public class ProtocolVersionCommand implements Command {
 
-public class ProtocolVersionCommand implements GTPCommand {
-
-	public static final String NAME = "protocol_version";
 	public static final ProtocolVersionCommand INSTANCE = new ProtocolVersionCommand();
 
 	private ProtocolVersionCommand() {}
 
 	@Override
-	public String execute(CommandContext context) {
+	public String execute() {
         return "2";
     }
 

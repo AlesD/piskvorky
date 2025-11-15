@@ -2,7 +2,8 @@ package cz.doleckovi.piskvorky.gtp.command;
 
 import cz.doleckovi.piskvorky.gtp.CommandContext;
 
-public class EchoCommand implements GNUGoCommand {
+@CommandInfo(name = "echo", description = "Print ")
+public class EchoCommand implements Command {
 
     public static final String NAME = "echo";
 
@@ -13,7 +14,7 @@ public class EchoCommand implements GNUGoCommand {
     }
 
     @Override
-    public String execute(CommandContext context) {
+    public String execute() {
         return text;
     }
 

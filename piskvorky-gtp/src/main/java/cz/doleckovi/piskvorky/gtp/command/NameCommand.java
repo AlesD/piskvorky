@@ -1,10 +1,8 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
-import cz.doleckovi.piskvorky.gtp.CommandContext;
+@CommandInfo(name = "name", description = "Report the name of the program")
+public class NameCommand implements Command {
 
-public class NameCommand implements GTPCommand {
-
-    public static final String NAME = "name";
 	public static final NameCommand INSTANCE = new NameCommand("piskvorky");
 
     private final String name;
@@ -14,7 +12,7 @@ public class NameCommand implements GTPCommand {
     }
 
     @Override
-    public String execute(CommandContext context) {
+    public String execute() {
         return name;
     }
 }

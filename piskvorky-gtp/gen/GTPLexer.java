@@ -1,4 +1,4 @@
-// Generated from C:/Users/ales_/IdeaProjects/piskvorky/piskvorky-gtp/src/main/antlr4/cz/doleckovi/piskvorky/gtp/command/parser/GTPLexer.g4 by ANTLR 4.13.2
+// Generated from /home/ales/workspaces/piskvorky2/piskvorky-gtp/src/main/antlr4/cz/doleckovi/piskvorky/gtp/parser/GTPLexer.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;

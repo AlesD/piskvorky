@@ -1,6 +1,5 @@
 package cz.doleckovi.piskvorky.gtp.autoconfigure;
 
-import cz.doleckovi.piskvorky.gtp.command.GTPCommand;
 import cz.doleckovi.piskvorky.gtp.command.*;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,33 +33,33 @@ public class CommandAutoConfiguration {
         return commandNames;
     }
 
-    @Bean(name = ProtocolVersionCommand.NAME)
+	@Bean
     public ProtocolVersionCommand protocolVersionCommand() {
         return ProtocolVersionCommand.INSTANCE;
     }
 
-    @Bean(name = NameCommand.NAME)
+    @Bean
     public NameCommand nameCommand() {
         return new NameCommand(name);
     }
 
-    @Bean(name = VersionCommand.NAME)
+    @Bean
     public VersionCommand versionCommand() {
         return new VersionCommand(version);
     }
 
-    @Bean(name = KnownCommandCommand.NAME)
+    @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public KnownCommandCommand knownCommandCommand(String commandName) {
         return new KnownCommandCommand(commandName);
     }
 
-    @Bean(name = ListCommandsCommand.NAME)
+    @Bean
     public ListCommandsCommand listCommandsCommand() {
         return new ListCommandsCommand(List.of(sortedCommandNames()));
     }
 
-    @Bean(name = EchoCommand.NAME)
+    @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public EchoCommand echoCommand(String text) {
         return new EchoCommand(text);
@@ -68,7 +67,7 @@ public class CommandAutoConfiguration {
 
     @Bean
     public CommandFactoryImpl commandFactory() {
-        return new CommandFactoryImpl();
+        return new CommandFactoryImpl(beanFactory);
     }
 
 }

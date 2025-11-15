@@ -2,7 +2,7 @@ package cz.doleckovi.piskvorky.gtp.command;
 
 import cz.doleckovi.piskvorky.gtp.CommandContext;
 
-public class KnownCommandCommand implements GTPCommand {
+public class KnownCommandCommand implements Command {
 
     public static final String NAME = "known_command";
 

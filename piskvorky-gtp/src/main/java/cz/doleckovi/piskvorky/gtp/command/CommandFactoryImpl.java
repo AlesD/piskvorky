@@ -4,37 +4,85 @@ import cz.doleckovi.piskvorky.api.board.Side;
 import cz.doleckovi.piskvorky.gtp.CommandFactory;
 import cz.doleckovi.piskvorky.gtp.Move;
 import cz.doleckovi.piskvorky.gtp.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
+import java.util.*;
+
+import static java.util.Objects.*;
 
 public class CommandFactoryImpl implements CommandFactory {
 
-	private static final Logger LOGGER = Logger.getLogger(CommandFactoryImpl.class.getSimpleName());
-	static final Map<String, Class<? extends GTPCommand>> ALL_COMMANDS = new LinkedHashMap<>();
+	private static final Logger LOG = LoggerFactory.getLogger(CommandFactoryImpl.class);
+
+	private static final Map<String, Class<?>> ALL_COMMANDS = new LinkedHashMap<>();
 
 	static {
-		ALL_COMMANDS.put(ProtocolVersionCommand.NAME, ProtocolVersionCommand.class);
-		ALL_COMMANDS.put(NameCommand.NAME, NameCommand.class);
-		ALL_COMMANDS.put(VersionCommand.NAME, VersionCommand.class);
-		ALL_COMMANDS.put(KnownCommandCommand.NAME, KnownCommandCommand.class);
-		ALL_COMMANDS.put(ListCommandsCommand.NAME, ListCommandsCommand.class);
+		addCommand(ProtocolVersionCommand.class);
+		addCommand(NameCommand.class);
+		addCommand(VersionCommand.class);
+		addCommand(KnownCommandCommand.class);
+		addCommand(ListCommandsCommand.class);
+		// Setup commands
+		addCommand(BoardSizeCommand.class);
 		// GNU Go Extensions
-		ALL_COMMANDS.put(EchoCommand.NAME, EchoCommand.class);
+		addCommand(EchoCommand.class);
 	}
 
-	private final NameCommand nameCommand = NameCommand.INSTANCE;
-	private final VersionCommand versionCommand = new VersionCommand();
+	static void addCommand(Class<?> type) {
+		requireNonNull(type, "Parameter type is null");
+		if (Command.class.isAssignableFrom(type)) {
+			LOG.trace("Adding command {}", type);
+		} else if (Action.class.isAssignableFrom(type)) {
+			LOG.trace("Adding action {}", type);
+		} else {
+			throw new IllegalArgumentException("Class %s is neither action nor command".formatted(type));
+		}
+		var name = getName(type);
+		ALL_COMMANDS.put(name, type);
+		LOG.debug("Added {} as {}", type, name);
+	}
 
-    public GTPCommand createSimpleCommand(String commandName) {
-		return switch (commandName) {
-			case ProtocolVersionCommand.NAME -> ProtocolVersionCommand.INSTANCE;
-			case NameCommand.NAME -> nameCommand;
-			case VersionCommand.NAME -> versionCommand;
-			default -> throw new IllegalArgumentException();
-		};
+	static String getName(Class<?> type) {
+		var commandInfo = type.getAnnotation(CommandInfo.class);
+		if (commandInfo == null)
+			throw new IllegalArgumentException("Class %s is not command".formatted(type));
+		return commandInfo.name();
+	}
+
+	private final ListableBeanFactory beanFactory;
+	private final Map<String, Class<?>> commandClasses = new HashMap<>();
+	private final Map<String, Object> commandBeans = new HashMap<>();
+
+	public CommandFactoryImpl(ListableBeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
+		for (var beanName : beanFactory.getBeanNamesForAnnotation(CommandInfo.class)) {
+			var beanType = beanFactory.getType(beanName);
+			var commandInfo = beanType.getAnnotation(CommandInfo.class);
+			var commandName = commandInfo.name();
+			if (beanFactory.isSingleton(beanName)) {
+				LOG.info("Command {} implemented by singleton bean {} of type {}", commandName, beanName, commandClasses);
+				commandBeans.put(commandName, beanFactory.getBean(beanName));
+			} else if (beanFactory.isPrototype(beanName)) {
+				LOG.info("Command {} implemented by prototype bean {} of type {}", commandName, beanName, commandClasses);
+				commandClasses.put(commandName, beanType);
+			}
+		}
+	}
+
+	public Object createSimpleCommand(String commandName) {
+		if (commandBeans.containsKey(commandName))
+			return commandBeans.get(commandName);
+		if (commandClasses.containsKey(commandName))
+			return beanFactory.getBean(commandClasses.get(commandName));
+		if (beanFactory.containsBean(commandName))
+			return beanFactory.getBean(commandName);
+		if (beanFactory.containsBeanDefinition(commandName))
+			return beanFactory.getBean(commandName);
+		return new ExceptionAction("unknown command",
+				new IllegalArgumentException("Unknown command %s".formatted(commandName)));
+
 //                    | 'help'
 //                    | 'quit'
 //                    | 'clear_board'
@@ -70,7 +118,7 @@ public class CommandFactoryImpl implements CommandFactory {
 //                    | 'piskvorky-field_gfx'
     }
 
-    public GTPCommand createColorCommand(String commandName, Side side) {
+    public Command createSideCommand(String commandName, Side side) {
         switch (commandName) {
 //                    | 'genmove' COLOR                      # ColorCommand
 //                    | 'reg_genmove' COLOR                  # ColorCommand
@@ -84,7 +132,7 @@ public class CommandFactoryImpl implements CommandFactory {
         }
     }
 
-    public GTPCommand createTextCommand(String commandName, String text) {
+    public Command createTextCommand(String commandName, String text) {
         return switch (commandName) {
 	        case KnownCommandCommand.NAME -> new KnownCommandCommand(text);
 	        case EchoCommand.NAME -> new EchoCommand(text);
@@ -94,7 +142,7 @@ public class CommandFactoryImpl implements CommandFactory {
         };
     }
 
-    public GTPCommand createNumberCommand(String commandName, String integer) {
+    public Command createNumberCommand(String commandName, String integer) {
         switch (commandName) {
 //                    | 'board_size' INTEGER                 # IntCommand
 //                    // GNU Go Extensions
@@ -116,7 +164,7 @@ public class CommandFactoryImpl implements CommandFactory {
  */
 
 
-    public GTPCommand createMoveCommand(String commandName, Move move) {
+    public Command createMoveCommand(String commandName, Move move) {
         switch (commandName) {
 //                    | 'play' move                          # MoveCommand
 //                    // GNU Go Extensions
@@ -126,7 +174,7 @@ public class CommandFactoryImpl implements CommandFactory {
         }
     }
 
-    public GTPCommand createVertexCommand(String commandName, Vertex vertex) {
+    public Command createVertexCommand(String commandName, Vertex vertex) {
         switch (commandName) {
             // GNU Go Extensions
 //    | 'color' VERTEX                       # VertexCommand
@@ -134,7 +182,7 @@ public class CommandFactoryImpl implements CommandFactory {
         }
     }
 
-    public GTPCommand createMovesCommand(String commandName, List<Move> moves) {
+    public Command createMovesCommand(String commandName, List<Move> moves) {
         switch (commandName) {
 /*
     // Go GUI extensions
@@ -145,7 +193,7 @@ public class CommandFactoryImpl implements CommandFactory {
         }
     }
 
-    public GTPCommand createKVPCommand(String commandName, String key, String value) {
+    public Command createKVPCommand(String commandName, String key, String value) {
         switch (commandName) {
 /*
                 // piskvorky extensions
