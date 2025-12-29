@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.gtp;
 
-import cz.doleckovi.piskvorky.api.Game;
+import cz.doleckovi.piskvorky.api.game.Game;
 import cz.doleckovi.piskvorky.api.board.Board;
 
 public interface Session {
@@ -11,5 +11,4 @@ public interface Session {
 	Game getGame();
 	void resetGame();
 
-    boolean isAlive();
 }

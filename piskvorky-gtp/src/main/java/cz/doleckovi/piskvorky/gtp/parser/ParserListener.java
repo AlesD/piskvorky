@@ -1,30 +1,33 @@
 package cz.doleckovi.piskvorky.gtp.parser;
 
-import cz.doleckovi.piskvorky.api.board.Side;
-import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.api.game.Side;
+import cz.doleckovi.piskvorky.api.position.Stone;
 import cz.doleckovi.piskvorky.gtp.CommandFactory;
 import cz.doleckovi.piskvorky.gtp.Move;
 import cz.doleckovi.piskvorky.gtp.Vertex;
 import cz.doleckovi.piskvorky.gtp.command.Command;
-import cz.doleckovi.piskvorky.gtp.command.CommandFactoryImpl;
+import cz.doleckovi.piskvorky.gtp.command.trait.Traits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 public class ParserListener extends GTPParserBaseListener {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ParserListener.class);
 
-    private final CommandFactory factory;
-	private final Deque<Object> stack;
+	private final Deque<Object> stack = new LinkedList<>();
+	private final CommandFactory factory;
+	private final Consumer<Command> commandConsumer;
 
-    ParserListener(CommandFactory factory, Deque<Object> stack) {
-        this.factory = Objects.requireNonNull(factory);
-		this.stack = stack;
+    public ParserListener(CommandFactory factory, Consumer<Command> commandConsumer) {
+        this.factory = requireNonNull(factory, "Parameter 'factory' is null");
+		this.commandConsumer = commandConsumer;
     }
 
 	private void push(Object object) {
@@ -40,111 +43,133 @@ public class ParserListener extends GTPParserBaseListener {
 
 	@Override
 	public void exitCommandWithId(GTPParser.CommandWithIdContext ctx) {
+		var command = pop(Command.class);
 		if (ctx.id != null) {
-			LOG.trace("Adding ID to command: {}", ctx.getText());
-			var command = pop(Command.class);
 			var id = ctx.id.getText();
-			push(IdTrait.add(command, id));
+			LOG.trace("Adding ID {} to {}", id, command);
+			command = (Command) Traits.addId(command, id);
 		}
+		commandConsumer.accept(command);
 	}
 
 	@Override
 	public void exitInterruptAction(GTPParser.InterruptActionContext ctx) {
-		LOG.trace("Creating interrupt action: {}", ctx.getText());
-		push(factory.createInterruptAction());
+		LOG.trace("Creating interrupt action");
+		commandConsumer.accept(factory.createInterruptAction());
 	}
 
 	@Override
-	public void exitNoOpAction(GTPParser.NoOpActionContext ctx) {
-		LOG.trace("Creating no-op action: {}", ctx.getText());
-		push(factory.createNoOpAction());
+	public void exitEndOfLine(GTPParser.EndOfLineContext ctx) {
+		LOG.trace("End of line");
+		stack.clear();
 	}
 
 	@Override
 	public void exitTextCommand(GTPParser.TextCommandContext ctx) {
-		LOG.trace("Creating text command for: {}", ctx.getText());
-		push(factory.createTextCommand(ctx.COMMAND().getText(), ctx.TEXT().getText()));
+		var commandName = ctx.COMMAND().getText();
+		var text = pop(String.class);
+		LOG.trace("Creating command {} for text {}", commandName, text);
+		push(factory.createTextCommand(commandName, text));
 	}
 
 	@Override
 	public void exitKVPCommand(GTPParser.KVPCommandContext ctx) {
-		LOG.trace("Creating key-value pair command for: {}", ctx.getText());
-		push(factory.createKVPCommand(ctx.COMMAND().getText(), ctx.KEY().getText(), ctx.TEXT().getText()));
-	}
-
-	@Override
-	public void exitMovesCommand(GTPParser.MovesCommandContext ctx) {
-		LOG.trace("Creating moves command for: {}", ctx.getText());
-		@SuppressWarnings("unchecked")
-		List<Move> moves = pop(List.class);
-		push(factory.createMovesCommand(ctx.COMMAND().getText(), moves));
+		var commandName = ctx.COMMAND().getText();
+		var key = ctx.KEY().getText();
+		var text = pop(String.class);
+		LOG.trace("Creating command {} for key {} and value {}", commandName, key, text);
+		push(factory.createKVPCommand(commandName, key, text));
 	}
 
 	@Override
 	public void exitMoveCommand(GTPParser.MoveCommandContext ctx) {
-		LOG.trace("Creating move command for: {}", ctx.getText());
-		var move = pop(Move.class);
-		push(factory.createMoveCommand(ctx.COMMAND().getText(), move));
+		var commandName = ctx.COMMAND().getText();
+		@SuppressWarnings("unchecked")
+		var moves = (List<Move>) pop(List.class);
+		LOG.trace("Creating command {} for moves {}", commandName, moves);
+		push(factory.createMoveCommand(commandName, moves));
 	}
 
 	@Override
 	public void exitVertexCommand(GTPParser.VertexCommandContext ctx) {
-		LOG.trace("Creating vertex command for: {}", ctx.getText());
-		push(factory.createVertexCommand(ctx.COMMAND().getText(), Vertex.parse(ctx.VERTEX().getText())));
+		var commandName = ctx.COMMAND().getText();
+		var vertex = ctx.VERTEX().getText();
+		LOG.trace("Creating command {} for vertex {}", commandName, vertex);
+		push(factory.createVertexCommand(commandName, Vertex.parse(vertex)));
 	}
 
 	@Override
 	public void exitSideCommand(GTPParser.SideCommandContext ctx) {
-		LOG.trace("Creating side command for: {}", ctx.getText());
+		var commandName = ctx.COMMAND().getText();
 		var side = pop(Side.class);
-		push(factory.createSideCommand(ctx.COMMAND().getText(), side));
+		LOG.trace("Creating command {} for side {}", commandName, side);
+		push(factory.createSideCommand(commandName, side));
 	}
 
 	@Override
 	public void exitNumberCommand(GTPParser.NumberCommandContext ctx) {
-		LOG.trace("Creating number command for: {}", ctx.getText());
-		push(factory.createNumberCommand(ctx.COMMAND().getText(), ctx.INTEGER().getText()));
+		var commandName = ctx.COMMAND().getText();
+		var number = ctx.INTEGER().getText();
+		LOG.trace("Creating command {} for number {}", commandName, number);
+		push(factory.createNumberCommand(commandName, Integer.parseInt(number)));
 	}
 
 	@Override
 	public void exitSimpleCommand(GTPParser.SimpleCommandContext ctx) {
-		LOG.trace("Creating simple command for: {}", ctx.getText());
-		push(factory.createSimpleCommand(ctx.COMMAND().getText()));
+		var commandName = ctx.COMMAND().getText();
+		LOG.trace("Creating command {}", commandName);
+		push(factory.createSimpleCommand(commandName));
 	}
 
 	@Override
-	public void exitMoves(GTPParser.MovesContext ctx) {
-		LOG.trace("Creating moves for: {}", ctx.getText());
+	public void exitCreateMoves(GTPParser.CreateMovesContext ctx) {
+		var move = pop(Move.class);
+		LOG.trace("Creating moves from: {}", move);
 		var moves = new LinkedList<Move>();
-		for (var move : ctx.move()) {
-			moves.add(pop(Move.class));
-		}
+		moves.add(move);
+		push(moves);
+	}
+
+	@Override
+	public void exitAddMove(GTPParser.AddMoveContext ctx) {
+		var move = pop(Move.class);
+		LOG.trace("Adding move: {}", move);
+		@SuppressWarnings("unchecked")
+		var moves = (List<Move>) pop(List.class);
+		moves.add(move);
 		push(moves);
 	}
 
 	@Override
 	public void exitNormalMove(GTPParser.NormalMoveContext ctx) {
-		LOG.trace("Creating normal move for: {}", ctx.getText());
+		var vertex = ctx.VERTEX().getText();
+		LOG.trace("Creating normal move for: {}", vertex);
 		var side = pop(Side.class);
-		push(new Move(side.stone, Vertex.parse(ctx.VERTEX().getText())));
+		push(new Move(side.stone, Vertex.parse(vertex)));
 	}
 
 	@Override
 	public void exitBlockMove(cz.doleckovi.piskvorky.gtp.parser.GTPParser.BlockMoveContext ctx) {
-		LOG.trace("Creating block move for: {}", ctx.getText());
-		push(new Move(Stone.BLOCK, Vertex.parse(ctx.VERTEX().getText())));
+		var vertex = ctx.VERTEX().getText();
+		LOG.trace("Creating block move for: {}", vertex);
+		push(new Move(Stone.BLOCK, Vertex.parse(vertex)));
 	}
 
 	@Override
     public void exitWhiteColor(cz.doleckovi.piskvorky.gtp.parser.GTPParser.WhiteColorContext ctx) {
 		LOG.trace("Creating white side for: {}", ctx.getText());
-		stack.push(Side.WHITE);
+		push(Side.WHITE);
     }
 
     @Override
     public void exitBlackColor(cz.doleckovi.piskvorky.gtp.parser.GTPParser.BlackColorContext ctx) {
 	    LOG.trace("Creating black side for: {}", ctx.getText());
-		stack.push(Side.BLACK);
+		push(Side.BLACK);
     }
 
+	@Override
+	public void exitText(GTPParser.TextContext ctx) {
+		LOG.trace("Got text: {}", ctx.getText());
+		push(ctx.getText());
+	}
 }

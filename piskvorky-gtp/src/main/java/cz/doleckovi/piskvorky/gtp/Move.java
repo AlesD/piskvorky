@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.gtp;
 
-import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.api.position.Stone;
 
 public class Move {
 

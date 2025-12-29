@@ -1,31 +1,28 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
-import cz.doleckovi.piskvorky.gtp.CommandContext;
-
 import java.util.Collection;
-import java.util.List;
 import java.util.StringJoiner;
 
+@CommandInfo(name = "list_commands", description = "Report all known commands")
 public class ListCommandsCommand implements Command {
 
-    public static final String NAME = "list_commands";
-	public static final ListCommandsCommand INSTANCE = new ListCommandsCommand();
-
-    private final Collection<String> commandNames;
+	private final Collection<String> commandNames;
 
     public ListCommandsCommand(Collection<String> commandNames) {
         this.commandNames = commandNames;
     }
 
-	private ListCommandsCommand() {
-		this(List.copyOf(CommandFactoryImpl.ALL_COMMANDS.keySet()));
-	}
-
     @Override
-    public String execute(CommandContext context) {
+    public String call() {
         var joiner = new StringJoiner("\n");
         commandNames.forEach(joiner::add);
         return joiner.toString();
     }
 
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", ListCommandsCommand.class.getSimpleName() + "[", "]")
+				.add("commandNames=" + commandNames)
+				.toString();
+	}
 }

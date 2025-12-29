@@ -17,8 +17,4 @@ public class InputAutoConfiguration {
 		return new Scanner(System.in, System.getProperty("stdin.encoding"));
 	}
 
-	Scanner fileScanner() {
-
-	}
-
 }

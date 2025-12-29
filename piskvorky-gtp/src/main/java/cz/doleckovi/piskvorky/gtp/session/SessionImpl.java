@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.gtp.session;
 
-import cz.doleckovi.piskvorky.api.Game;
+import cz.doleckovi.piskvorky.api.game.Game;
 import cz.doleckovi.piskvorky.api.board.Board;
 import cz.doleckovi.piskvorky.gtp.Session;
 
@@ -43,11 +43,6 @@ public class SessionImpl implements Session {
     @Override
     public void resetGame() {
         game = gameFactory.apply(board);
-    }
-
-    @Override
-    public boolean isAlive() {
-        return alive;
     }
 
 }

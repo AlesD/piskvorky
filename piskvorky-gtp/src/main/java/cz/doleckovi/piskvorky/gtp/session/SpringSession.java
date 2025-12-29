@@ -1,6 +1,6 @@
 package cz.doleckovi.piskvorky.gtp.session;
 
-import cz.doleckovi.piskvorky.api.Game;
+import cz.doleckovi.piskvorky.api.game.Game;
 import cz.doleckovi.piskvorky.api.board.Board;
 import cz.doleckovi.piskvorky.gtp.Session;
 import org.springframework.beans.factory.BeanFactory;

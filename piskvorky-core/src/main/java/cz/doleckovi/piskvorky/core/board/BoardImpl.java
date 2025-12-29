@@ -1,22 +1,20 @@
 package cz.doleckovi.piskvorky.core.board;
 
 import cz.doleckovi.piskvorky.api.Constants;
-import cz.doleckovi.piskvorky.api.board.Board;
-import cz.doleckovi.piskvorky.api.board.CellAddress;
-import cz.doleckovi.piskvorky.api.board.Direction;
+import cz.doleckovi.piskvorky.api.board.*;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 import static cz.doleckovi.piskvorky.api.Constants.DIRECTION_COUNT;
 
-public class BoardImpl implements Board {
+class BoardImpl implements Board {
 
 	private final int size;
-	private final List<FieldAddressImpl> fields;
-	private final List<LineDescriptorImpl> lines;
+	private final List<FieldAddress> fields;
+	private final List<LineDescriptor> lines;
 
-	public BoardImpl(int size) {
+	BoardImpl(int size) {
 		if (size < Constants.WIN_LENGTH)
 			throw new IllegalArgumentException("size: %d < %d".formatted(size, Constants.WIN_LENGTH));
 		var descriptors = describeLines(size);
@@ -31,31 +29,27 @@ public class BoardImpl implements Board {
 	}
 
     @Override
-    public FieldAddressImpl field(int column, int row) throws IndexOutOfBoundsException {
-        return fields.get(column + row * size);
-    }
-
-    @Override
-    public LineDescriptorImpl line(CellAddress cell) throws IllegalArgumentException, IndexOutOfBoundsException {
-        if (cell instanceof CellAddressImpl cellAddressImpl)
-            return lines.get(cellAddressImpl.line());
-        throw new IllegalArgumentException("Unsupported cell address");
-    }
-
-    /** Gets number of lines on the board.
-     * @return Number of lines
-     */
-	public int lineCount() {
-		return lines.size();
-	}
-
-	public LineDescriptorImpl line(int index) throws IndexOutOfBoundsException{
-		return lines.get(index);
-	}
-
     public int fieldCount() {
         return fields.size();
     }
+
+    @Override
+    public int lineCount() {
+        return lines.size();
+    }
+
+    public cz.doleckovi.piskvorky.api.board.FieldAddress field(int index) {
+        return fields.get(index);
+    }
+
+    @Override
+    public cz.doleckovi.piskvorky.api.board.FieldAddress field(int column, int row) throws IndexOutOfBoundsException {
+        return fields.get(column + row * size);
+    }
+
+	public cz.doleckovi.piskvorky.api.board.LineDescriptor line(int index) throws IndexOutOfBoundsException{
+		return lines.get(index);
+	}
 
     @Override
     public boolean equals(Object o) {
@@ -104,9 +98,9 @@ public class BoardImpl implements Board {
 				.flatMap(List::stream).toList();
 	}
 
-	private static List<FieldAddressImpl> fields(int size, List<LineDescriptor_> lines) {
-		var fields = new FieldAddressImpl[size * size];
-		var cells = new HashMap<Integer, Map<Integer, Map<Direction, CellAddressImpl>>>(size);
+	private static List<FieldAddress> fields(int size, List<LineDescriptor_> lines) {
+		var fields = new FieldAddress[size * size];
+		var cells = new HashMap<Integer, Map<Integer, Map<Direction, CellAddress>>>(size);
 		int lineIndex = 0;
 		for(var line : lines) {
 			var column = line.column;
@@ -115,9 +109,9 @@ public class BoardImpl implements Board {
 				var map = cells
 						.computeIfAbsent(row, _ -> new HashMap<>(size))
 						.computeIfAbsent(column, _ -> new EnumMap<>(Direction.class));
-				map.put(line.direction, new CellAddressImpl(lineIndex, offset));
+				map.put(line.direction, new CellAddress(lineIndex, offset));
 				if (map.size() == DIRECTION_COUNT) {
-					fields[column + row * size] = new FieldAddressImpl(column + size * row, column, row, map);
+					fields[column + row * size] = new FieldAddress(column + size * row, column, row, map);
 				}
 				column += line.columnStep;
 				row += line.rowStep;
@@ -127,10 +121,11 @@ public class BoardImpl implements Board {
 		return List.of(fields);
 	}
 
-	private static List<LineDescriptorImpl> lines(int size, List<LineDescriptor_> descriptors, List<FieldAddressImpl> fields) {
-		var result = new ArrayList<LineDescriptorImpl>(descriptors.size());
-		for (var descriptor : descriptors) {
-			var addresses = new FieldAddressImpl[descriptor.length];
+	private static List<LineDescriptor> lines(int size, List<LineDescriptor_> descriptors, List<FieldAddress> fields) {
+		var result = new ArrayList<LineDescriptor>(descriptors.size());
+        for (var index = 0; index < descriptors.size(); ++index) {
+		    var descriptor = descriptors.get(index);
+			var addresses = new FieldAddress[descriptor.length];
 			var column = descriptor.column;
 			var row = descriptor.row;
 			for (int offset = 0; offset < descriptor.length; ++offset) {
@@ -138,7 +133,7 @@ public class BoardImpl implements Board {
 				column += descriptor.columnStep;
 				row += descriptor.rowStep;
 			}
-			result.add(new LineDescriptorImpl(descriptor.direction, List.of(addresses)));
+			result.add(new LineDescriptor(index, descriptor.direction, List.of(addresses)));
 		}
 		return result;
 	}

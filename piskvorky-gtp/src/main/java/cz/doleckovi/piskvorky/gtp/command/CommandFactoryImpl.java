@@ -1,88 +1,34 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
-import cz.doleckovi.piskvorky.api.board.Side;
+import cz.doleckovi.piskvorky.api.game.Side;
 import cz.doleckovi.piskvorky.gtp.CommandFactory;
 import cz.doleckovi.piskvorky.gtp.Move;
 import cz.doleckovi.piskvorky.gtp.Vertex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-import java.util.*;
-
-import static java.util.Objects.*;
+import java.util.List;
+import java.util.Map;
 
 public class CommandFactoryImpl implements CommandFactory {
 
-	private static final Logger LOG = LoggerFactory.getLogger(CommandFactoryImpl.class);
-
-	private static final Map<String, Class<?>> ALL_COMMANDS = new LinkedHashMap<>();
-
-	static {
-		addCommand(ProtocolVersionCommand.class);
-		addCommand(NameCommand.class);
-		addCommand(VersionCommand.class);
-		addCommand(KnownCommandCommand.class);
-		addCommand(ListCommandsCommand.class);
-		// Setup commands
-		addCommand(BoardSizeCommand.class);
-		// GNU Go Extensions
-		addCommand(EchoCommand.class);
-	}
-
-	static void addCommand(Class<?> type) {
-		requireNonNull(type, "Parameter type is null");
-		if (Command.class.isAssignableFrom(type)) {
-			LOG.trace("Adding command {}", type);
-		} else if (Action.class.isAssignableFrom(type)) {
-			LOG.trace("Adding action {}", type);
-		} else {
-			throw new IllegalArgumentException("Class %s is neither action nor command".formatted(type));
-		}
-		var name = getName(type);
-		ALL_COMMANDS.put(name, type);
-		LOG.debug("Added {} as {}", type, name);
-	}
-
-	static String getName(Class<?> type) {
-		var commandInfo = type.getAnnotation(CommandInfo.class);
-		if (commandInfo == null)
-			throw new IllegalArgumentException("Class %s is not command".formatted(type));
-		return commandInfo.name();
-	}
-
 	private final ListableBeanFactory beanFactory;
-	private final Map<String, Class<?>> commandClasses = new HashMap<>();
-	private final Map<String, Object> commandBeans = new HashMap<>();
+	private final Map<String, String> commandNames;
 
-	public CommandFactoryImpl(ListableBeanFactory beanFactory) {
+	public CommandFactoryImpl(ListableBeanFactory beanFactory, Map<String, String> commandNames) {
 		this.beanFactory = beanFactory;
-		for (var beanName : beanFactory.getBeanNamesForAnnotation(CommandInfo.class)) {
-			var beanType = beanFactory.getType(beanName);
-			var commandInfo = beanType.getAnnotation(CommandInfo.class);
-			var commandName = commandInfo.name();
-			if (beanFactory.isSingleton(beanName)) {
-				LOG.info("Command {} implemented by singleton bean {} of type {}", commandName, beanName, commandClasses);
-				commandBeans.put(commandName, beanFactory.getBean(beanName));
-			} else if (beanFactory.isPrototype(beanName)) {
-				LOG.info("Command {} implemented by prototype bean {} of type {}", commandName, beanName, commandClasses);
-				commandClasses.put(commandName, beanType);
-			}
-		}
+		this.commandNames = Map.copyOf(commandNames);
 	}
 
-	public Object createSimpleCommand(String commandName) {
-		if (commandBeans.containsKey(commandName))
-			return commandBeans.get(commandName);
-		if (commandClasses.containsKey(commandName))
-			return beanFactory.getBean(commandClasses.get(commandName));
-		if (beanFactory.containsBean(commandName))
-			return beanFactory.getBean(commandName);
-		if (beanFactory.containsBeanDefinition(commandName))
-			return beanFactory.getBean(commandName);
-		return new ExceptionAction("unknown command",
-				new IllegalArgumentException("Unknown command %s".formatted(commandName)));
+	private String getBeanName(String commandName) {
+		var result = commandNames.get(commandName);
+		if (result == null)
+			throw new IllegalArgumentException("Unknown command %s".formatted(commandName));
+		return result;
+	}
 
+	@Override
+	public Command createSimpleCommand(String commandName) {
+		return beanFactory.getBean(getBeanName(commandName), Command.class);
 //                    | 'help'
 //                    | 'quit'
 //                    | 'clear_board'
@@ -118,8 +64,9 @@ public class CommandFactoryImpl implements CommandFactory {
 //                    | 'piskvorky-field_gfx'
     }
 
-    public Command createSideCommand(String commandName, Side side) {
-        switch (commandName) {
+	@Override
+	public Command createSideCommand(String commandName, Side side) {
+		return (Command) beanFactory.getBean(getBeanName(commandName), side);
 //                    | 'genmove' COLOR                      # ColorCommand
 //                    | 'reg_genmove' COLOR                  # ColorCommand
                     // GNU Go Extensions
@@ -128,23 +75,18 @@ public class CommandFactoryImpl implements CommandFactory {
                     // Go GUI extensions
 //                    | 'gogui-setup_player' COLOR           # ColorCommand
 //                    // piskvorky extensions
-            default -> throw new IllegalArgumentException("Unknown command: %s".formatted(commandName));
-        }
-    }
+	}
 
-    public Command createTextCommand(String commandName, String text) {
-        return switch (commandName) {
-	        case KnownCommandCommand.NAME -> new KnownCommandCommand(text);
-	        case EchoCommand.NAME -> new EchoCommand(text);
+	@Override
+	public Command createTextCommand(String commandName, String text) {
+		return (Command) beanFactory.getBean(getBeanName(commandName), text);
 //                    // GNU Go Extensions
 //                    | 'echo_err' string=TEXT               # IntCommand
-	        default -> throw new IllegalArgumentException();
-        };
     }
 
-    public Command createNumberCommand(String commandName, String integer) {
-        switch (commandName) {
-//                    | 'board_size' INTEGER                 # IntCommand
+	@Override
+    public Command createNumberCommand(String commandName, Integer integer) {
+		return (Command) beanFactory.getBean(getBeanName(commandName), integer);
 //                    // GNU Go Extensions
 //                    | 'gg_undo' INTEGER?                   # IntCommand
 //                    | 'orientation' INTEGER                # IntCommand
@@ -152,8 +94,6 @@ public class CommandFactoryImpl implements CommandFactory {
 //                    | 'gogui-action_forward' INTEGER?      # IntCommand
 //                    | 'gogui-action_backward' INTEGER?     # IntCommand
 //                    // piskvorky extensions
-            default -> throw new IllegalArgumentException("Unknown command: %s".formatted(commandName));
-        }
     }
 
 /*
@@ -163,44 +103,34 @@ public class CommandFactoryImpl implements CommandFactory {
     | 'piskvorky-config' key=ID value=TEXT # KVPCommand
  */
 
+	@Override
+    public Command createVertexCommand(String commandName, Vertex vertex) {
+		return (Command) beanFactory.getBean(getBeanName(commandName), vertex);
+            // GNU Go Extensions
+//    | 'color' VERTEX                       # VertexCommand
+    }
 
-    public Command createMoveCommand(String commandName, Move move) {
-        switch (commandName) {
+	@Override
+    public Command createMoveCommand(String commandName, List<Move> moves) {
+		return (Command) beanFactory.getBean(getBeanName(commandName), moves);
+/*
 //                    | 'play' move                          # MoveCommand
 //                    // GNU Go Extensions
 //                    | 'is_legal' move                      # MoveCommand
 //                    // Go GUI extensions
-            default -> throw new IllegalArgumentException("Unknown command: %s".formatted(commandName));
-        }
-    }
-
-    public Command createVertexCommand(String commandName, Vertex vertex) {
-        switch (commandName) {
-            // GNU Go Extensions
-//    | 'color' VERTEX                       # VertexCommand
-            default -> throw new IllegalArgumentException("Unknown command: %s".formatted(commandName));
-        }
-    }
-
-    public Command createMovesCommand(String commandName, List<Move> moves) {
-        switch (commandName) {
-/*
     // Go GUI extensions
     | 'gogui-setup' moves                  # MoveListCommand
     | 'gogui-play_sequence' moves          # MoveListCommand
  */
-            default -> throw new IllegalArgumentException("Unknown command: %s".formatted(commandName));
-        }
     }
 
+	@Override
     public Command createKVPCommand(String commandName, String key, String value) {
-        switch (commandName) {
+	    return (Command) beanFactory.getBean(getBeanName(commandName), key, value);
 /*
                 // piskvorky extensions
     | 'piskvorky-config' key=ID value=TEXT # KVPCommand
  */
-            default -> throw new IllegalArgumentException("Unknown command: %s".formatted(commandName));
-        }
     }
 
 }

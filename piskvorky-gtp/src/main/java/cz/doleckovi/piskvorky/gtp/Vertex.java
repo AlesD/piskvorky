@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class Vertex {
 
-    private static final Pattern PATTERN = Pattern.compile("(?<column>[a-hA-H][j-zJ-Z])(?<row>[1-9][0-9]?)");
+    private static final Pattern PATTERN = Pattern.compile("(?<column>[a-hj-zA-HJ-Z])(?<row>[1-9][0-9]?)");
     private final char column;
     private final int row;
 

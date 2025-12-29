@@ -30,6 +30,7 @@
 		<module>piskvorky-api</module>
 		<module>piskvorky-core</module>
         <module>piskvorky-gtp</module>
+		<module>piskvorky-app</module>
 	</modules>
 
 	<scm>
@@ -71,6 +72,15 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<release>${java.version}</release>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>

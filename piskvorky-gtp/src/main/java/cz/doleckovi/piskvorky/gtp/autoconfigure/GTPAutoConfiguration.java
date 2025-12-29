@@ -1,55 +1,41 @@
 package cz.doleckovi.piskvorky.gtp.autoconfigure;
 
 import cz.doleckovi.piskvorky.gtp.CommandFactory;
-import cz.doleckovi.piskvorky.gtp.command.CommandFactoryImpl;
-import cz.doleckovi.piskvorky.gtp.parser.CommandReader;
-import cz.doleckovi.piskvorky.gtp.parser.CommandSupplier;
-import cz.doleckovi.piskvorky.gtp.parser.LineSupplier;
-import org.springframework.beans.factory.ListableBeanFactory;
+import cz.doleckovi.piskvorky.gtp.command.execution.CommandExecutorService;
+import cz.doleckovi.piskvorky.gtp.command.execution.InputProcessor;
+import cz.doleckovi.piskvorky.gtp.parser.AntlrCommandParser;
+import cz.doleckovi.piskvorky.gtp.parser.GTPParser;
+import cz.doleckovi.piskvorky.gtp.parser.ParserListener;
+import cz.doleckovi.piskvorky.gtp.parser.ScannerLineSupplier;
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorCompletionService;
 
 @AutoConfiguration
-@ConditionalOnBooleanProperty(name = "piskvorky.gtp.enabled", matchIfMissing = false)
+@Profile("gtp")
+@ConditionalOnBooleanProperty(name = "piskvorky.gtp.enabled", matchIfMissing = true)
 public class GTPAutoConfiguration {
 
 	@Configuration
+	@Import({CommandConfiguration.class, ParserConfiguration.class, CommandExecutionConfiguration.class})
 	@EnableConfigurationProperties(GTPProperties.class)
 	public static class GTPConfiguration {
 
-		@ConditionalOnMissingBean(LineSupplier.class)
-		public LineSupplier scaner(GTPProperties properties) throws IOException {
-			Scanner scanner;
-			if (properties.getScanner() != null) {
-				var resource = properties.getScanner();
-				if (resource.isFile()) {
-					scanner = new Scanner(resource.getFile());
-				} else {
-					scanner = new Scanner(resource.getInputStream());
-				}
-			} else if (System.console() != null) {
-				scanner = new Scanner(System.console().reader());
-			} else {
-				scanner = new Scanner(System.in, System.getProperty("stdin.encoding"));
-			}
-			return scanner::nextLine;
-		}
-
-		@ConditionalOnMissingBean(CommandFactory.class)
-		public CommandFactoryImpl commandFactory(ListableBeanFactory beanFactory) {
-			return new CommandFactoryImpl(beanFactory);
-		}
-
-		@ConditionalOnMissingBean(CommandSupplier.class)
-		public CommandReader commandReader(LineSupplier lineSupplier, CommandFactory commandFactory) {
-			return new CommandReader(lineSupplier, commandFactory);
-		}
+		private static final Logger LOG = LoggerFactory.getLogger(GTPAutoConfiguration.class);
 
 	}
 

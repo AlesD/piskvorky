@@ -1,30 +1,28 @@
 package cz.doleckovi.piskvorky.gtp;
 
-import cz.doleckovi.piskvorky.api.board.Side;
-import cz.doleckovi.piskvorky.gtp.command.Action;
-import cz.doleckovi.piskvorky.gtp.command.CommandException;
-import cz.doleckovi.piskvorky.gtp.command.InterruptAction;
-import cz.doleckovi.piskvorky.gtp.command.NoOpAction;
+import cz.doleckovi.piskvorky.api.game.Side;
+import cz.doleckovi.piskvorky.gtp.command.Command;
+import cz.doleckovi.piskvorky.gtp.command.InterruptCommand;
+import cz.doleckovi.piskvorky.gtp.command.NoOpCommand;
 
 import java.util.List;
 
 public interface CommandFactory {
 
-    Object createSimpleCommand(String commandName);
-    Object createSideCommand(String commandName, Side side);
-    Object createTextCommand(String commandName, String text);
-    Object createNumberCommand(String commandName, String integer);
-    Object createMoveCommand(String commandName, Move move);
-    Object createVertexCommand(String commandName, Vertex vertex);
-    Object createMovesCommand(String commandName, List<Move> moves);
-    Object createKVPCommand(String commandName, String key, String value);
+	Command createSimpleCommand(String commandName);
+	Command createSideCommand(String commandName, Side side);
+	Command createTextCommand(String commandName, String text);
+	Command createNumberCommand(String commandName, Integer integer);
+	Command createVertexCommand(String commandName, Vertex vertex);
+	Command createMoveCommand(String commandName, List<Move> moves);
+	Command createKVPCommand(String commandName, String key, String value);
 
-	default Object createInterruptAction() {
-		return InterruptAction.INSTANCE;
+	default Command createInterruptAction() {
+		return InterruptCommand.INSTANCE;
 	}
 
-	default Object createNoOpAction() {
-		return NoOpAction.INSTANCE;
+	default Command createNoOpAction() {
+		return NoOpCommand.INSTANCE;
 	}
 
 }

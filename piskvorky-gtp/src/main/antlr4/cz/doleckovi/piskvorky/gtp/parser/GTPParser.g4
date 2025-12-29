@@ -5,14 +5,13 @@ options { tokenVocab=GTPLexer; }
 action
 	: id=INTEGER? command # CommandWithId
 	| INTERRUPT           # InterruptAction
-	| EOF                 # NoOpAction
+	| EOL                 # EndOfLine
 	;
 
 command
-    : COMMAND TEXT           # TextCommand
-    | COMMAND KEY TEXT       # KVPCommand
-    | COMMAND moves          # MovesCommand
-    | COMMAND move           # MoveCommand
+    : COMMAND text           # TextCommand
+    | COMMAND KEY text       # KVPCommand
+    | COMMAND moves          # MoveCommand
     | COMMAND VERTEX         # VertexCommand
     | COMMAND side           # SideCommand
     | COMMAND INTEGER        # NumberCommand
@@ -20,7 +19,8 @@ command
     ;
 
 moves
-    : move+
+    : move       # CreateMoves
+    | moves move # AddMove
     ;
 
 move
@@ -32,3 +32,5 @@ side
     : WHITE # WhiteColor
     | BLACK # BlackColor
     ;
+
+text: WORD+;

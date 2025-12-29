@@ -1,7 +1,11 @@
 package cz.doleckovi.piskvorky.gtp.command;
 
+import cz.doleckovi.piskvorky.gtp.command.trait.Interrupting;
+
+import java.util.StringJoiner;
+
 @CommandInfo(name = "boardsize", description = "Sets board size")
-public class BoardSizeCommand implements Action, SessionAction, CancelingAction, InterruptingAction {
+public class BoardSizeCommand implements Command, SessionAction, Interrupting {
 
 	private final int size;
 
@@ -10,12 +14,19 @@ public class BoardSizeCommand implements Action, SessionAction, CancelingAction,
 	}
 
 	@Override
-	public void execute() throws CommandException {
+	public String call() throws CommandException {
 		try {
 			session().setBoard(size);
 		} catch (Exception e) {
 			throw new CommandException(this, "unacceptable size", e);
 		}
+		return null;
 	}
 
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", BoardSizeCommand.class.getSimpleName() + "[", "]")
+				.add("size=" + size)
+				.toString();
+	}
 }

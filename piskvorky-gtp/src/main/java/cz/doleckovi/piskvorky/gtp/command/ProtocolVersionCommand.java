@@ -8,8 +8,13 @@ public class ProtocolVersionCommand implements Command {
 	private ProtocolVersionCommand() {}
 
 	@Override
-	public String execute() {
+	public String call() {
         return "2";
     }
+
+	@Override
+	public String toString() {
+		return ProtocolVersionCommand.class.getSimpleName() + "[]";
+	}
 
 }
