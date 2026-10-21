@@ -1,12 +1,13 @@
-package cz.doleckovi.piskvorky.api.board;
+package cz.doleckovi.piskvorky.api.position;
 
 import cz.doleckovi.piskvorky.api.Constants;
+import cz.doleckovi.piskvorky.api.board.Board;
+import cz.doleckovi.piskvorky.api.board.FieldAddress;
 
 /** Position on board.
  * <p>Position must be thread-safe.</p>
- * @param <SELF> This position type
  */
-public interface Position<SELF extends Position<SELF>> {
+public interface Position {
 
 	/** Gets board on which is the game played.
 	 * @return Board instance
@@ -32,7 +33,7 @@ public interface Position<SELF extends Position<SELF>> {
 	 * @throws IllegalArgumentException  if the stone is {@link Stone#EMPTY EMPTY}
 	 * @throws IllegalStateException     if there is already stone on the given field
 	 */
-	SELF withStone(FieldAddress field, Stone stone)
+	Position withStone(FieldAddress field, Stone stone)
 			throws IndexOutOfBoundsException, IllegalArgumentException, IllegalStateException;
 
 }

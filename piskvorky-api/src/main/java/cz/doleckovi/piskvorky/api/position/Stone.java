@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.api.board;
+package cz.doleckovi.piskvorky.api.position;
 
 /** Stone placed on board. */
 public enum Stone {

@@ -10,5 +10,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>piskvorky-api</artifactId>
+    <name>Piskvorky API</name>
+    <description>API </description>
 
 </project>

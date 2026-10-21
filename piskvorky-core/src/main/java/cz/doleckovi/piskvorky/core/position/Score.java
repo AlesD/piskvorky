@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.core.board;
+package cz.doleckovi.piskvorky.core.position;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -44,7 +44,7 @@ class Score {
         return black[index];
     }
 
-    Updater updater() {
+    public Updater updater() {
         return new Updater(white.clone(), black.clone());
     }
 

@@ -2,12 +2,7 @@ package cz.doleckovi.piskvorky.api.board;
 
 /** Cell address.
  * <p>Helps to abstract internal organization of position.</p>
+ * @param line Line index
+ * @param offset Cell offset
  */
-public interface CellAddress {
-
-	/** Gets cell offset.
-	 * @return Cell offset
-	 */
-	int offset();
-
-}
+public record CellAddress(int line, int offset) { }

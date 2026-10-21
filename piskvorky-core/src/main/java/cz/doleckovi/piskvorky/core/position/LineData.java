@@ -1,4 +1,4 @@
-package cz.doleckovi.piskvorky.core.board;
+package cz.doleckovi.piskvorky.core.position;
 
 import java.util.Objects;
 import java.util.StringJoiner;

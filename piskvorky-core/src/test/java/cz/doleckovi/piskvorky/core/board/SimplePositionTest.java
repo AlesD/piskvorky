@@ -1,6 +1,7 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.api.position.Stone;
+import cz.doleckovi.piskvorky.core.position.PositionImpl;
 import org.assertj.core.api.WithAssertions;
 import org.junit.jupiter.api.Test;
 

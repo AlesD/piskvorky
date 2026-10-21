@@ -1,6 +1,6 @@
-package cz.doleckovi.piskvorky.core.board;
+package cz.doleckovi.piskvorky.core.position;
 
-import cz.doleckovi.piskvorky.api.board.Stone;
+import cz.doleckovi.piskvorky.api.position.Stone;
 
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -102,8 +102,10 @@ public class CellData {
             throw new IllegalStateException("Cell is not EMPTY");
         if (previous.stone() == Stone.EMPTY)
             throw new IllegalArgumentException("Previous cell is EMPTY");
-		return new CellData(Stone.EMPTY, min(previous.white() + next.white(), WIN_LENGTH),
-                min(next.black() + next.black(), WIN_LENGTH), MAX_MOVE);
+        var nextWhite = (next.stone() == Stone.WHITE) ? next.white() : 0;
+        var nextBlack = (next.stone() == Stone.BLACK) ? next.black() : 0;
+		return new CellData(Stone.EMPTY, min(previous.white() + nextWhite, WIN_LENGTH),
+                min(previous.black() + nextBlack, WIN_LENGTH), MAX_MOVE);
 	}
 
     /** Updates move suitability of empty cell.
