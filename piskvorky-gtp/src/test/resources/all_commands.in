@@ -1,0 +1,23 @@
+protocol_version
+			// Standard administrative commands
+			ProtocolVersionCommand.NAME,
+			NameCommand.NAME,
+			VersionCommand.NAME,
+			KnownCommandCommand.NAME,
+			ListCommandsCommand.NAME,
+			QuitCommand.NAME,
+			// Standard setup commands
+			BoardsizeCommand.NAME,
+			ClearBoardCommand.NAME,
+			// Core play commands
+			PlayCommand.NAME,
+			UndoCommand.NAME,
+			// Go GUI rules extension commands
+			RulesGameIdCommand.NAME,
+			RulesBoardCommand.NAME,
+			RulesBoardGfxCommand.NAME,
+			RulesCapturedCountCommand.NAME,
+			RulesBoardSizeCommand.NAME,
+			RulesLegalMovesCommand.NAME,
+			RulesSideToMoveCommand.NAME,
+			RulesFinalResultCommand.NAME
