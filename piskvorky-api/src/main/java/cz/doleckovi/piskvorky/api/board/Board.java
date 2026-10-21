@@ -1,33 +1,54 @@
 package cz.doleckovi.piskvorky.api.board;
 
-/** Board on which games are played.
- * <p>Board instances must be immutable and can be shared by positions from many games.</p>
- */
+/** Board on which games are played. */
 public interface Board {
 
-	/** Gets board width.
-	 * <p>Board width is always greater or equal to 5.</p>
-	 * @return Board width
-	 */
-	int getWidth();
+    /** Gets board size.
+     * @return Board size
+     */
+    int size();
 
-	/** Gets board height.
-	 * <p>Board height is always greater or equal to 5.</p>
-	 * @return Board height
-	 */
-	int getHeight();
+    /** Number of fields on the board.
+     * <p>Note: Boards with irregular shapes or holes might exist.</p>
+     * @return Number of fields
+     */
+    int fieldCount();
 
-	/** Initial <strong>empty</strong> position.
-	 * @return Initial position
-	 */
-	Position initialPosition();
+    /** Gets field address.
+     * @param index Field index
+     * @return Address with given index
+     * @throws IndexOutOfBoundsException if the index is negative or greater than or equal to field count
+     */
+    FieldAddress field(int index) throws IndexOutOfBoundsException;
 
-	/** Helper function for converting board coordinates to field index.
-	 * @param column Column number
-	 * @param row Row number
-	 * @return Field index
-	 * @throws IndexOutOfBoundsException if either column or row does not fit to board
-	 */
-	int toIndex(int column, int row) throws IndexOutOfBoundsException;
+    /** Gets field address for given column and row.
+     * <p>Note: Boards with irregular shapes or holes might exist.</p>
+     * @param column Column number
+     * @param row Row number
+     * @return Address of field at given board coordinates or {@code null}
+     * @throws IndexOutOfBoundsException if either column or row is out of board
+     */
+    FieldAddress field(int column, int row) throws IndexOutOfBoundsException;
+
+    /** Gets number of lines on the board.
+     * @return Number of lines
+     */
+    int lineCount();
+
+    /** Gets line descriptor.
+     * @param index Line index
+     * @return Descriptor for line with given index
+     * @throws IndexOutOfBoundsException if the index is negative or greater than or equal to line count
+     */
+    Line line(int index) throws IndexOutOfBoundsException;
+
+    /** Translates cell address to field address.
+     * @param cell Cell address
+     * @return Address of matching field
+     * @throws IndexOutOfBoundsException if the cell is out of board
+     */
+    default FieldAddress field(CellAddress cell) throws IndexOutOfBoundsException {
+        return line(cell.line()).field(cell.offset());
+    }
 
 }

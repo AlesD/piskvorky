@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Start piskvorky-app GTP server from the built jar.
+set -euo pipefail
+
+# Directory of this script (resolves symlinks).
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+
+JAR_DIR="$SCRIPT_DIR/piskvorky-app/target"
+JAR="$(ls "$JAR_DIR"/piskvorky-app-*.jar 2>/dev/null | grep -v '\.original$' | head -n1 || true)"
+
+if [[ -z "$JAR" ]]; then
+    echo "No piskvorky-app jar found in $JAR_DIR — run 'mvn package -pl piskvorky-app' first." >&2
+    exit 1
+fi
+
+if ! unzip -p "$JAR" META-INF/MANIFEST.MF 2>/dev/null | grep -q "Main-Class:.*JarLauncher"; then
+    echo "Jar $JAR is not an executable Spring Boot jar — rebuild with 'mvn package -pl piskvorky-app'." >&2
+    exit 1
+fi
+
+cd "$JAR_DIR"
+exec java -Dpiskvorky.logs.dir="$JAR_DIR/logs" -jar "$JAR" --spring.profiles.active=gtp "$@"

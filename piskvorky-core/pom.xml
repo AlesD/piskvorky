@@ -10,6 +10,8 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>piskvorky-core</artifactId>
+    <name>Piskvorky Core</name>
+    <description>Core functionality</description>
 
 	<dependencies>
 		<dependency>
@@ -17,6 +19,6 @@
 			<artifactId>piskvorky-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 </project>

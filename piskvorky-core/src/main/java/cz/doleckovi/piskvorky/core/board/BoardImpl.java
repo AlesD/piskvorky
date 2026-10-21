@@ -1,86 +1,151 @@
 package cz.doleckovi.piskvorky.core.board;
 
-import cz.doleckovi.piskvorky.api.board.Board;
-import cz.doleckovi.piskvorky.api.board.Direction;
-import cz.doleckovi.piskvorky.api.board.Position;
+import cz.doleckovi.piskvorky.api.Constants;
+import cz.doleckovi.piskvorky.api.board.*;
+
+import java.util.*;
+import java.util.stream.Stream;
+
+import static cz.doleckovi.piskvorky.api.Constants.DIRECTION_COUNT;
 
 public class BoardImpl implements Board {
 
-	private final int width;
-	private final int height;
-	private final PositionImpl initialPosition;
+	private final int size;
+	private final List<FieldAddress> fields;
+	private final List<Line> lines;
 
-	/** Create new board instance.
-	 * @param width Board width
-	 * @param height Boar height
+	public BoardImpl(int size) {
+		if (size < Constants.WIN_LENGTH)
+			throw new IllegalArgumentException("size: %d < %d".formatted(size, Constants.WIN_LENGTH));
+		var descriptors = describeLines(size);
+		this.size = size;
+		this.fields = List.copyOf(fields(descriptors));
+		this.lines = List.copyOf(lines(size, descriptors, fields));
+	}
+
+	@Override
+	public int size() {
+		return size;
+	}
+
+    @Override
+    public int fieldCount() {
+        return fields.size();
+    }
+
+    @Override
+    public int lineCount() {
+        return lines.size();
+    }
+
+    public cz.doleckovi.piskvorky.api.board.FieldAddress field(int index) {
+        return fields.get(index);
+    }
+
+    @Override
+    public cz.doleckovi.piskvorky.api.board.FieldAddress field(int column, int row) throws IndexOutOfBoundsException {
+        return fields.get(column + row * size);
+    }
+
+	public Line line(int index) throws IndexOutOfBoundsException{
+		return lines.get(index);
+	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof BoardImpl that) {
+            return size == that.size;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(size);
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", BoardImpl.class.getSimpleName() + "[", "]")
+                .add("size=" + size)
+                .toString();
+    }
+
+    private record LineDescriptorData(Direction direction, int column, int row, int length, int columnStep, int rowStep) {}
+
+	/** Creates line descriptors for all lines on board.
+	 * <p>Line is described by:</p>
+	 * <ul>
+	 *     <li>Column and Row of 1st cell of the line</li>
+	 *     <li>Direction and length of the line</li>
+	 *     <li>Column and Row Step - which are number to add to Column and Row of next cell of line</li>
+	 * </ul>
+	 * @param size Size of the board
+	 * @return List of line descriptors
 	 */
-	public BoardImpl(int width, int height) {
-		if (width < 5)
-			throw new IllegalArgumentException("Minimal width of the board is 5");
-		if (height < 5) {
-			throw new IllegalArgumentException("Minimal height of the board is 5");
+	private static List<LineDescriptorData> describeLines(int size) {
+		var horizontal = new LinkedList<LineDescriptorData>();
+		var vertical = new LinkedList<LineDescriptorData>();
+		var uphillBelowDiagonal = new LinkedList<LineDescriptorData>();
+		var uphillAboveDiagonal = new LinkedList<LineDescriptorData>();
+		var downhillBellowDiagonal = new LinkedList<LineDescriptorData>();
+		var downhillAboveDiagonal = new LinkedList<LineDescriptorData>();
+		var lastRow = size - 1;
+		for (int index = 0; index < size; ++index) {
+			horizontal.add(new LineDescriptorData(Direction.HORIZONTAL, 0, index, size, 1, 0));
+			vertical.add(new LineDescriptorData(Direction.VERTICAL, index, 0, size, 0, 1));
+			var length = size - index;
+			uphillBelowDiagonal.add(new LineDescriptorData(Direction.UPHILL, index, lastRow, length, 1, -1));
+			downhillBellowDiagonal.add(new LineDescriptorData(Direction.DOWNHILL, 0, index, length, 1, 1));
+			if (index > 0) {
+				uphillAboveDiagonal.add(new LineDescriptorData(Direction.UPHILL, 0, lastRow - index, length, 1, -1));
+				downhillAboveDiagonal.add(new LineDescriptorData(Direction.DOWNHILL, index, 0, length, 1, 1));
+			}
 		}
-		this.width = width;
-		this.height = height;
-		this.initialPosition = PositionImpl.emptyPosition(this);
+		return Stream.of(horizontal, vertical,
+						uphillAboveDiagonal.reversed(), uphillBelowDiagonal,
+						downhillAboveDiagonal.reversed(), downhillBellowDiagonal)
+				.flatMap(List::stream).toList();
 	}
 
-	/** Create new square board instance.
-	 * @param side Board side length
-	 */
-	public BoardImpl(int side) {
-		this(side, side);
+	private List<FieldAddress> fields(List<LineDescriptorData> lines) {
+		var fields = new FieldAddress[size * size];
+		var cells = new HashMap<Integer, Map<Integer, Map<Direction, CellAddress>>>(size);
+		int lineIndex = 0;
+		for(var line : lines) {
+			var column = line.column;
+			var row = line.row;
+			for (int offset = 0; offset < line.length; ++offset) {
+				var map = cells
+						.computeIfAbsent(row, _ -> new HashMap<>(size))
+						.computeIfAbsent(column, _ -> new EnumMap<>(Direction.class));
+				map.put(line.direction, new CellAddress(lineIndex, offset));
+				if (map.size() == DIRECTION_COUNT) {
+					fields[column + row * size] = new FieldAddress(this, column + size * row, column, row, map);
+				}
+				column += line.columnStep;
+				row += line.rowStep;
+			}
+			++lineIndex;
+		}
+		return List.of(fields);
 	}
 
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	@Override
-	public Position initialPosition() {
-		return initialPosition;
-	}
-
-	@Override
-	public int toIndex(int column, int row) throws IndexOutOfBoundsException {
-		if (column < 0 || column >= width)
-			throw new IndexOutOfBoundsException(column);
-		if (row < 0 || row >= height)
-			throw new IndexOutOfBoundsException(row);
-		return column + row * width;
-	}
-
-	/** Create iterator over field indexes.
-	 * @param index Initial field index
-	 * @param direction Direction in which the iterator advances
-	 * @return Iterator that will enumerate indexes of next fields in given direction
-	 */
-	BoardIteratorImpl iterator(int index, Direction direction) {
-		return new BoardIteratorImpl(this, index, direction);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		BoardImpl that = (BoardImpl) o;
-		return width == that.width && height == that.height;
-	}
-
-	@Override
-	public int hashCode() {
-		return width + 31 * height;
-	}
-
-	@Override
-	public String toString() {
-		return "Board[" + width + 'x' + height + ']';
+	private static List<Line> lines(int size, List<LineDescriptorData> descriptors, List<FieldAddress> fields) {
+		var result = new ArrayList<Line>(descriptors.size());
+        for (var index = 0; index < descriptors.size(); ++index) {
+		    var descriptor = descriptors.get(index);
+			var addresses = new FieldAddress[descriptor.length];
+			var column = descriptor.column;
+			var row = descriptor.row;
+			for (int offset = 0; offset < descriptor.length; ++offset) {
+				addresses[offset] = fields.get(column + row * size);
+				column += descriptor.columnStep;
+				row += descriptor.rowStep;
+			}
+			result.add(new Line(index, descriptor.direction, List.of(addresses)));
+		}
+		return result;
 	}
 
 }
